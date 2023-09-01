@@ -1,14 +1,9 @@
 <script>
   import Nav from "$lib/nav.svelte";
+  import "../app.css";
 </script>
 
-<div id="mainDiv">
+<div class="grid grid-cols-12">
   <Nav />
   <slot />
 </div>
-
-<style>
-  #mainDiv {
-    display: flex;
-  }
-</style>

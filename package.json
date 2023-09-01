@@ -28,7 +28,10 @@
     "@tiptap/pm": "^2.1.7",
     "@tiptap/starter-kit": "^2.1.7",
     "firebase": "^10.3.0",
+    "flowbite": "^1.8.1",
+    "kbar": "0.1.0-beta.43",
     "svelte-editorjs": "^0.1.0",
+    "svelte-kbar": "^0.0.18",
     "yarn": "^1.22.19"
   }
 }
