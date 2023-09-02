@@ -1,6 +1,6 @@
 <script>
   import { onAuthStateChanged } from "firebase/auth";
-  import { auth, logOutButton } from "../routes/firebase";
+  import { auth, logInButton, logOutButton } from "../routes/firebase";
 
   let showLoggedIn = "none";
   let showLoggedOut = "none";
@@ -21,27 +21,19 @@
 
 <nav class="col-span-2" style="display: {showLoggedIn}">
   <div class="fixed pl-8 pr-5 border-r border-r-gray-400 h-full w-[15%]">
-    <a href="/"><img src="./logo.svg" class="w-36 mb-5 mt-5" alt="logo" /></a>
-    <ul class="border-spacing-6 space-y-7 pt-2">
-      <li>
-        <a href="/announcements"> Announcements</a>
-      </li>
-      <li>
-        <a href="/gallery">Gallery</a>
-      </li>
-      <li>
-        <a href="/departmentmembers">Edit Department Members</a>
-      </li>
-      <li>
-        <a href="/alumni">Alumni</a>
-      </li>
+    <img src="./logo.svg" class="w-36 pb-5 pt-5" alt="logo" />
+    <ul class="border-spacing-6">
+      <li><a class="py-2" href="/announcements"> Announcements</a></li>
+      <li><a class="py-2" href="/gallery">Gallery</a></li>
+      <li><a class="py-2" href="/">Edit Department Members</a></li>
+      <li><a class="py-2" href="/alumni">Alumni</a></li>
     </ul>
     <button
-      on:click={logOutButton}
-      class="bg-neutral-950 text-white px-5 py-2 absolute bottom-7 rounded-lg outline-[0.5px] outline-stone-200 outline"
-      >Log Out</button
-    >
+    on:click={logOutButton}
+    class="bg-neutral-950 text-white px-5 py-2 rounded-lg">Log Out</button
+  >
   </div>
+  <div class="logOut" />
 </nav>
 
 <style>

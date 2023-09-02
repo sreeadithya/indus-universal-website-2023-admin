@@ -34,29 +34,17 @@ let user = auth.currentUser;
 
 // ! Functions to handle authentication of the user
 
-// async function logInButton(userEmail, userPassword) {
-//   signInWithEmailAndPassword(auth, userEmail, userPassword)
-//     .then((userCredential) => {
-// ? User Signed in
-//       user = userCredential.user;
-//     })
-//     .catch((error) => {
-// TODO Add functionality to error messages, codes
-//       return error;
-//     });
-// }
-
-async function logInButton(userEmail, userPassword) {
-  try {
-    await signInWithEmailAndPassword(auth, userEmail, userPassword).then(
-      (userCredential) => {
-        user = userCredential.user;
-      }
-    );
-    return null;
-  } catch (error) {
-    return error;
-  }
+function logInButton(userEmail, userPassword) {
+  signInWithEmailAndPassword(auth, userEmail, userPassword)
+    .then((userCredential) => {
+      // ? User Signed in
+      user = userCredential.user;
+    })
+    .catch((error) => {
+      // TODO Add functionality to error messages, codes
+      const errorCode = error.code;
+      const errorMessage = error.message;
+    });
 }
 
 function logOutButton() {
