@@ -1,5 +1,5 @@
 <script>
-  // import stuff
+  //! Importing required svelte elements
   import { createEditor } from "svelte-editorjs";
   import Header from "@editorjs/header";
   import Underline from "@editorjs/underline";
@@ -7,6 +7,32 @@
   import { db } from "../firebase";
   import { onMount } from "svelte";
   import { ref, set, get, child } from "firebase/database";
+  import { getNotificationsContext } from 'svelte-notifications';
+  const { addNotification } = getNotificationsContext();
+
+  let userEmail;
+  let userPassword;
+
+  import { onAuthStateChanged } from "firebase/auth";
+  import { auth, logInButton, logOutButton } from "../firebase";
+
+  let showLoggedIn = "none";
+  let showLoggedOut = "none";
+  let uid;
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      uid = user.uid;
+      showLoggedIn = "block";
+      showLoggedOut = "none";
+      console.log(user);
+    } else {
+      showLoggedIn = "none";
+      showLoggedOut = "block";
+      console.log(user);
+      window.location = "/";
+    }
+  });
 
   let announcements;
   let announcementsTitles = [];
@@ -18,8 +44,6 @@
     get(ref(db, "announcements/")).then((snapshot) => {
       if (snapshot.exists()) {
         announcements = snapshot.val();
-        // console.log(announcements);
-        // console.log(Object.keys(announcements).length);
         announcementsTitles = Object.keys(announcements);
 
         for (let i = 0; i < announcementsTitles.length; i++) {
@@ -74,17 +98,14 @@
   }
 </script>
 
-<main class="p-5 pl-10 pr-10 col-span-10 h-screen">
-  <!-- <nav
-    class="pb-5 border-b border-b-netural-400 flex justify-between items-center"
-  >
-    <p><span class="text-neutral-400">Home /</span> Announcements</p>
-    <input placeholder="Search" class="px-5 py-3 rounded-lg bg-gray-100" />
-  </nav> -->
+<main
+  class="p-5 pl-10 pr-10 col-span-10 h-screen"
+  style="display: {showLoggedIn}"
+>
   <div class="flex justify-between py-5">
     <h1 class="text-2xl font-extrabold mb-0">Announcements</h1>
     <button
-      class="px-5 py-2 rounded-lg bg-blue-700 text-white"
+      class="px-5 py-2 rounded-lg bg-indigo-300 text-black"
       on:click={() => {
         if (showNewAnnouncement == "none") {
           showNewAnnouncement = "flex";
@@ -107,21 +128,6 @@
     >
   </div>
 
-  <!-- <h2 class="text-lg text-bold">pinned announcements</h2>
-  <table class="table-auto">
-    <tr>
-      <td>first announcement</td>
-      <td>edit</td>
-      <td>delete</td>
-    </tr>
-  </table>
-  <hr /> -->
-
-  <!-- for (let i = 0; i < announcementsTitles.length; i++) {
-    console.log(announcements[announcementsTitles[i]].pinned);
-  } -->
-
-  <!-- </p> -->
   <div class="all-announcements py-5 background-neutral-100">
     <h2 class="text-lg font-bold">Pinned Announcements</h2>
     <table class="table-auto min-w-full text-left text-sm font-light border">
@@ -190,17 +196,17 @@
           <img src="./XCloseDelete.svg" alt="" title="Close" class="w-5" />
         </button>
       </div>
-      <div class="flex flex-row items-center gap-10 pb-5">
+      <div class="flex flex-row items-center gap-5 pb-5">
         <input
           name=""
           id=""
-          class="py-3 pl-5 bg-neutral-100 rounded-lg border col-span-1 border-gray-300"
+          class="py-3 pl-5 flex-grow rounded-lg border col-span-1 border-gray-300"
           placeholder="Title of the Annoucement"
           bind:value={titleAnnouncement}
         />
         <input
           type="date"
-          class="py-3 pl-5 w-max bg-neutral-100 rounded-lg border border-gray-300"
+          class="py-3 pl-5 rounded-lg border border-gray-300"
           name=""
           id="date"
           bind:value={date}
@@ -211,15 +217,21 @@
         </div>
       </div>
 
-      <div class="no-tailwind">
+      <div
+        class="prose rounded-lg border max-w-none w-[100%] mr-0 px-5 py-3 mb-4 border-gray-300 "
+      >
         <div class="editor" use:editor />
       </div>
 
       <button
-        class="px-5 py-2 rounded-lg bg-blue-700 text-white"
+        class="px-5 py-2 rounded-lg bg-indigo-300 text-black"
         on:click={() => {
           $editor.save();
           const myTimeout = setTimeout(publishData, 50);
+          addNotification({
+    text: 'Notification',
+    position: 'bottom-center',
+  })
         }}>Publish Announcement</button
       >
     </div>

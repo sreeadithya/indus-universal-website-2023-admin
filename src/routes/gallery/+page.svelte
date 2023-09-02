@@ -9,17 +9,37 @@
   let showSuccess = "none";
   let uploadError;
   let showError = "none";
-  // function uploadImages() {
-  //   console.log(imagesLocation);
-  // }
   import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
   import { storage, db } from "../firebase";
   import { ref as dbref, set, push, update } from "firebase/database";
 
+
+  let userEmail;
+  let userPassword;
+
+  import { onAuthStateChanged } from "firebase/auth";
+  import { auth, logInButton, logOutButton } from "../firebase";
+
+  let showLoggedIn = "none";
+  let showLoggedOut = "none";
+  let uid;
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      uid = user.uid;
+      showLoggedIn = "block";
+      showLoggedOut = "none";
+      console.log(user);
+    } else {
+      showLoggedIn = "none";
+      showLoggedOut = "block";
+      console.log(user);
+      window.location = "/";
+    }
+  });
+
   function uploadImages() {
     if (!imagesLocation) return;
-
-    // uploading images each at once so that even if it fails in the middle, everything before it will be still uploaded
 
     const uploadPromises = [];
 
@@ -78,7 +98,7 @@
   }
 </script>
 
-<main>
+<main style="display: {showLoggedIn};">
   <p>titles of galleries</p>
   <button
     on:click={() => {
@@ -100,15 +120,15 @@
       id=""
       bind:files={imagesLocation}
       multiple
-      accept=".png  ,.jpg"
+      accept=".png, .jpg, .jpeg"
     />
     <button on:click={uploadImages}>upload images</button>
     <p style="display: {showProg};">{prog}</p>
-    <p style="display: {showSuccess};">all uploads are finished</p>
+    <p style="display: {showSuccess};">all uploads are finished (hopefully)</p>
     <p style="display: {showError};">
       there was an error with the upload <br />
       please send the following error to the stem department and we'll get it resolved
-      ^-^
+      ^-^ UwU hussain-chan! :3 Kawaii-desu-ne!
       {uploadError}
     </p>
   </div>

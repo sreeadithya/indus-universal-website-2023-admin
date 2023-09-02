@@ -14,9 +14,60 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 const storage = getStorage(app);
-
 const db = getDatabase(app);
 
-export { storage, app, db };
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
+
+let userEmail;
+let userPassword;
+let showLoggedIn = "none";
+let showLoggedOut = "none";
+
+const auth = getAuth();
+let user = auth.currentUser;
+
+// ! Functions to handle authentication of the user
+
+function logInButton(userEmail, userPassword) {
+  signInWithEmailAndPassword(auth, userEmail, userPassword)
+    .then((userCredential) => {
+      // ? User Signed in
+      user = userCredential.user;
+    })
+    .catch((error) => {
+      // TODO Add functionality to error messages, codes
+      const errorCode = error.code;
+      const errorMessage = error.message;
+    });
+}
+
+function logOutButton() {
+  signOut(auth)
+    .then(() => {
+      console.log("signed Out successfully");
+      console.log(uid);
+    })
+    .catch((error) => {
+      // TODO Add functionality to error messages, codes
+      const errorCode = error.code;
+      const errorMessage = error.message;
+    });
+  window.location = "/";
+}
+
+export {
+  auth,
+  storage,
+  app,
+  db,
+  showLoggedIn,
+  logInButton,
+  logOutButton,
+  showLoggedOut,
+};
