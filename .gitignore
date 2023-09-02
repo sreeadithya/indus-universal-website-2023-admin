@@ -6,9 +6,7 @@ node_modules
 .env
 .env.*
 !.env.example
+.vercel
+.output
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-
-# we dont need to care about firebase.js being public since we'll use a new project for prod
-# Local Netlify folder
-.netlify
