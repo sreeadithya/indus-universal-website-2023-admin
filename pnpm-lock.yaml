@@ -38,12 +38,21 @@ dependencies:
   kbar:
     specifier: 0.1.0-beta.43
     version: 0.1.0-beta.43(react-dom@18.2.0)(react@17.0.2)
+  minimasonry:
+    specifier: ^1.3.2
+    version: 1.3.2
+  svelte-bricks:
+    specifier: ^0.2.0
+    version: 0.2.0
   svelte-editorjs:
     specifier: ^0.1.0
     version: 0.1.0(@editorjs/editorjs@2.28.0)(svelte@4.2.0)
   svelte-kbar:
     specifier: ^0.0.18
     version: 0.0.18
+  svelte-masonry-layout:
+    specifier: ^0.0.7
+    version: 0.0.7
   svelte-notifications:
     specifier: ^0.9.98
     version: 0.9.98
@@ -2001,6 +2010,10 @@ packages:
     hasBin: true
     dev: false
 
+  /minimasonry@1.3.2:
+    resolution: {integrity: sha512-ygvf5JIR4NT1LbM6o8z1oz1icTkta72gXKwidvSqIVxuzVd/P21UI0Wbq1J+MStAu50Vvr8qWYNSz1W4uycqMQ==}
+    dev: false
+
   /minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
     dependencies:
@@ -2553,6 +2566,12 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
+  /svelte-bricks@0.2.0:
+    resolution: {integrity: sha512-PPm4JkGFloaC1mB9v/M5QYtquxr8hWTo5OZtN+6+NfP58mxF1v5uSCMZ71TW0S/pjZdO2b2KL8+VU1r0mur0lg==}
+    dependencies:
+      svelte: 3.59.2
+    dev: false
+
   /svelte-editorjs@0.1.0(@editorjs/editorjs@2.28.0)(svelte@4.2.0):
     resolution: {integrity: sha512-aqMfmH8A3zaCWeNLf7/syRqhcNKSOultSVTUkNS2ny/T4hgNbXrKG1wLN0DvUzTcrXxsilt0doxtHJ9vXX8roQ==}
     peerDependencies:
@@ -2577,6 +2596,10 @@ packages:
     dependencies:
       match-sorter: 6.3.1
       svelte-portal: 2.2.0
+    dev: false
+
+  /svelte-masonry-layout@0.0.7:
+    resolution: {integrity: sha512-IvIya7V3uQs1Pb2+dSLgAOKFO1hnoEBgmrDah/Y9YIxs/Z9p4PuWc+rXAYur0JGMaW7/IuZ51oIlzxqsxCPtWA==}
     dev: false
 
   /svelte-notifications@0.9.98:
@@ -2633,6 +2656,11 @@ packages:
       strip-indent: 3.0.0
       svelte: 4.2.0
     dev: true
+
+  /svelte@3.59.2:
+    resolution: {integrity: sha512-vzSyuGr3eEoAtT/A6bmajosJZIUWySzY2CzB3w2pgPvnkUjGqlDnsNnA0PMO+mMAhuyMul6C2uuZzY6ELSkzyA==}
+    engines: {node: '>= 8'}
+    dev: false
 
   /svelte@4.2.0:
     resolution: {integrity: sha512-kVsdPjDbLrv74SmLSUzAsBGquMs4MPgWGkGLpH+PjOYnFOziAvENVzgJmyOCV2gntxE32aNm8/sqNKD6LbIpeQ==}

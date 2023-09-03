@@ -9,9 +9,11 @@
   let uploadError;
   let editAlbumName;
   let editAlbumDate;
+  let editImagesLocation;
   let showEditAlbum = "none";
   let editImages = [];
   let showUploadButton = "block";
+
   import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
   import { storage, db } from "../firebase";
   import { ref as dbref, set, push, update, get } from "firebase/database";
@@ -150,7 +152,9 @@
   }
 </script>
 
-<main style="display: {showLoggedIn};" class="py-10 px-10 col-span-10">
+<main
+  style="display: {showLoggedIn};"
+  class="py-5 px-10 col-span-10 overflow-y-visible">
   <div class="py-5 flex justify-between items-center">
     <h1 class="text-2xl font-bold">Gallery</h1>
     <button
@@ -225,10 +229,10 @@
 
   <div
     style="display: {showEditAlbum};"
-    class="absolute bg-[#00000059] top-0 left-0 w-screen overflow-hidden h-full flex justify-center items-center">
-    <div class="p-5 bg-white w-[50%] rounded-2xl">
+    class="absolute bg-[#00000059] top-0 left-0 w-screen h-full flex justify-center items-center">
+    <div class="p-5 bg-white w-[80%] h-[80%] rounded-2xl">
       <div class="flex justify-between pb-5">
-        <h2 class="text-lg font-bold">Add New Album</h2>
+        <h2 class="text-lg font-bold">Edit Album</h2>
         <button
           on:click={() => {
             showEditAlbum = "none";
@@ -253,17 +257,27 @@
 
           <!-- show images here -->
 
-          <div class="overflow-auto h-96" />
-          <br /><br /><br />
+          <div class="overflow-auto h-[50vh] mt-3">
+            <div class="masonry">
+              {#each editImages as item (item)}
+                <div class="masonry-item p-4 bg-white shadow rounded-lg">
+                  <input type="checkbox" checked="true" name="" id="" />
+                  <img src={item} alt="" />
+                </div>
+              {/each}
+            </div>
+          </div>
+          <label for="editFileInput">Add Images</label>
           <input
             class="block w-full text-lg border border-gray-300 rounded-lg cursor-pointer focus:outline-none mt-5"
             type="file"
             alt=""
             name=""
-            id="fileInput"
-            bind:files={imagesLocation}
+            id="editFileInput"
+            bind:files={editImagesLocation}
             multiple
             accept=".png, .jpg, .jpeg" />
+
           <button
             on:click={uploadImages}
             style="display: {showUploadButton}"
@@ -281,40 +295,54 @@
     </div>
   </div>
   <div>
-    <table
-      class="table-auto min-w-full text-left text-sm font-light border mt-3">
-      <thead>
-        <tr class="border-b">
-          <th scope="col" class="px-6 py-4">#</th>
-          <th scope="col" class="px-6 py-4">Name of the Album</th>
-          <th scope="col" class="px-6 py-4">Date</th>
-          <th scope="col" class="px-6 py-4">Options</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each albumTitles as i, y}
-          <tr class="border-b-1">
-            <td class="whitespace-nowrap px-6 py-4">{y + 1}</td>
-            <td class="whitespace-nowrap px-6 py-4">{i}</td>
-            <td class="whitespace-nowrap px-6 py-4">{albums[i].albumDate}</td>
-            <td class="whitespace-nowrap px-6 py-4">
-              <div class="flex flex-row gap-4">
-                <button
-                  class="px-5 hover:bg-gray-200 transition-colors py-2 rounded-lg bg-white outline-[0.5px] outline-stone-900 outline text-black"
-                  on:click={editAlbum(i)}>Edit</button>
-
-                <button
-                  class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 outline"
-                  on:click={deleteAlbum(1)}
-                  ><img
-                    src="./TrashDeleteBin.svg"
-                    alt=""
-                    class="w-5" /></button>
-              </div>
-            </td>
+    <div class="h-[87vh] overflow-auto">
+      <table
+        class="table-auto min-w-full text-left text-sm font-light border mt-3">
+        <thead>
+          <tr class="border-b">
+            <th scope="col" class="px-6 py-4">#</th>
+            <th scope="col" class="px-6 py-4">Name of the Album</th>
+            <th scope="col" class="px-6 py-4">Date</th>
+            <th scope="col" class="px-6 py-4">Options</th>
           </tr>
-        {/each}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {#each albumTitles as i, y}
+            <tr class="border-b-1">
+              <td class="whitespace-nowrap px-6 py-4">{y + 1}</td>
+              <td class="whitespace-nowrap px-6 py-4">{i}</td>
+              <td class="whitespace-nowrap px-6 py-4">{albums[i].albumDate}</td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <div class="flex flex-row gap-4">
+                  <button
+                    class="px-5 hover:bg-gray-200 transition-colors py-2 rounded-lg bg-white outline-[0.5px] outline-stone-900 outline text-black"
+                    on:click={editAlbum(i)}>Edit</button>
+
+                  <button
+                    class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 outline"
+                    on:click={deleteAlbum(1)}
+                    ><img
+                      src="./TrashDeleteBin.svg"
+                      alt=""
+                      class="w-5" /></button>
+                </div>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
   </div>
 </main>
+
+<style>
+  .masonry {
+    column-count: 6;
+    column-gap: 1rem;
+  }
+
+  .masonry-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+</style>
