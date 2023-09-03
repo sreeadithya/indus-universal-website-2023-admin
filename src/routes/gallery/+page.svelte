@@ -22,7 +22,7 @@
   let userPassword;
   function editAlbum(selectedAlbumName) {
     console.log(selectedAlbumName);
-    showEditAlbum = "block";
+    showEditAlbum = "flex";
     editAlbumName = selectedAlbumName;
     editAlbumDate = albums[selectedAlbumName].albumDate;
     console.log(Object.keys(albums[selectedAlbumName].imageLinks));
@@ -225,7 +225,7 @@
 
   <div
     style="display: {showEditAlbum};"
-    class="absolute bg-[#00000059] top-0 left-0 w-screen h-full flex justify-center items-center">
+    class="absolute bg-[#00000059] top-0 left-0 w-screen overflow-hidden h-full flex justify-center items-center">
     <div class="p-5 bg-white w-[50%] rounded-2xl">
       <div class="flex justify-between pb-5">
         <h2 class="text-lg font-bold">Add New Album</h2>
@@ -253,12 +253,7 @@
 
           <!-- show images here -->
 
-          <div class="grid grid-cols-4 md:grid-cols-3 gap-4">
-            {#each editImages as i, y}
-              <img src={i} alt="" class="h-auto max-w-full" />
-            {/each}
-          </div>
-
+          <div class="overflow-auto h-96" />
           <br /><br /><br />
           <input
             class="block w-full text-lg border border-gray-300 rounded-lg cursor-pointer focus:outline-none mt-5"
