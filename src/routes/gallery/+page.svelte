@@ -11,10 +11,17 @@
   let editAlbumDate;
   let editImagesLocation;
   let showEditAlbum = "none";
-  let editImages = [];
+  let editImageLinks = [];
   let showUploadButton = "block";
+  let editImages2;
+  let deletedImages = [];
 
-  import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
+  import {
+    ref,
+    getDownloadURL,
+    uploadBytesResumable,
+    deleteObject,
+  } from "firebase/storage";
   import { storage, db } from "../firebase";
   import { ref as dbref, set, push, update, get } from "firebase/database";
   import { onMount } from "svelte";
@@ -23,21 +30,42 @@
   let userEmail;
   let userPassword;
   function editAlbum(selectedAlbumName) {
-    console.log(selectedAlbumName);
     showEditAlbum = "flex";
     editAlbumName = selectedAlbumName;
     editAlbumDate = albums[selectedAlbumName].albumDate;
-    console.log(Object.keys(albums[selectedAlbumName].imageLinks));
     for (
       let x = 0;
       x < Object.keys(albums[selectedAlbumName].imageLinks).length;
       x++
     ) {
-      editImages = [...editImages, albums[selectedAlbumName].imageLinks[x]];
-      console.log(editImages);
+      editImageLinks = [
+        ...editImageLinks,
+        albums[selectedAlbumName].imageLinks[x],
+      ];
     }
   }
   function deleteAlbum() {}
+
+  function updateAlbum() {
+    // set(dbref(db, "gallery/" + editAlbumName), {
+    //   title: editAlbumName,
+    //   imageLinks: editImageLinks,
+    //   albumDate: editAlbumDate,
+    // }).then(() => {
+    // refFromURL("https://firebasestorage.googleapis.com...")
+    //   .delete()
+    //   .then(function () {
+    //     // File deleted successfully
+    //   })
+    //   .catch(function (error) {
+    //     // Uh-oh, an error occurred!
+    //   });
+
+    for (let i = 0; i < deletedImages.length; i++) {
+      console.log(deletedImages[i]);
+    }
+    // });
+  }
 
   import { onAuthStateChanged } from "firebase/auth";
   import { auth, logInButton, logOutButton } from "../firebase";
@@ -51,14 +79,19 @@
       uid = user.uid;
       showLoggedIn = "block";
       showLoggedOut = "none";
-      console.log(user);
     } else {
       showLoggedIn = "none";
       showLoggedOut = "block";
-      console.log(user);
       window.location = "/";
     }
   });
+
+  function arrayRemove(array, valueToRemove) {
+    const index = array.indexOf(valueToRemove);
+    if (index !== -1) {
+      array.splice(index, 1);
+    }
+  }
 
   let albums;
   let albumTitles = [];
@@ -88,8 +121,6 @@
     const uploadPromises = [];
 
     for (let i = 0; i < imagesLocation.length; i++) {
-      console.log(imagesLocation[i].name);
-
       const storageRef = ref(storage, `images/${imagesLocation[i].name}`);
       const uploadTask = uploadBytesResumable(storageRef, imagesLocation[i]);
 
@@ -123,7 +154,6 @@
 
     Promise.all(uploadPromises)
       .then((downloadURLs) => {
-        console.log("all uploads complete", downloadURLs);
         set(dbref(db, "gallery/" + albumName), {
           title: albumName,
           imageLinks: imageLinks,
@@ -150,11 +180,22 @@
         uploadError = error;
       });
   }
+
+  function deleteImageFromAlbum(imageUrl) {
+    arrayRemove(editImageLinks, imageUrl);
+    editImageLinks = editImageLinks;
+    console.log(editImageLinks);
+
+    deletedImages = [...deletedImages, imageUrl];
+
+    console.log();
+    console.log(deletedImages);
+  }
 </script>
 
 <main
   style="display: {showLoggedIn};"
-  class="py-5 px-10 col-span-10 overflow-y-visible">
+  class="py-5 px-10 col-span-10 overflow-y-visible m-5 rounded-2xl bg-white">
   <div class="py-5 flex justify-between items-center">
     <h1 class="text-2xl font-bold">Gallery</h1>
     <button
@@ -236,7 +277,7 @@
         <button
           on:click={() => {
             showEditAlbum = "none";
-            editImages = [];
+            editImageLinks = [];
           }}>
           <img src="./XCloseDelete.svg" alt="" title="Close" class="w-5" />
         </button>
@@ -259,10 +300,16 @@
 
           <div class="overflow-auto h-[50vh] mt-3">
             <div class="masonry">
-              {#each editImages as item (item)}
+              {#each editImageLinks as item (item)}
                 <div class="masonry-item p-4 bg-white shadow rounded-lg">
-                  <input type="checkbox" checked="true" name="" id="" />
-                  <img src={item} alt="" />
+                  <button
+                    class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 outline"
+                    on:click={deleteImageFromAlbum(item)}
+                    ><img
+                      src="./TrashDeleteBin.svg"
+                      alt=""
+                      class="w-5" /></button>
+                  <img src={item} alt="" class="mt-3" />
                 </div>
               {/each}
             </div>
@@ -279,10 +326,10 @@
             accept=".png, .jpg, .jpeg" />
 
           <button
-            on:click={uploadImages}
+            on:click={updateAlbum}
             style="display: {showUploadButton}"
             class="px-5 py-2 mt-5 rounded-lg items-center gap-2 bg-indigo-300 text-black"
-            >Publish Edited Album
+            >Update Album
           </button>
         </form>
         <div style="display: {showProg};">
@@ -295,7 +342,7 @@
     </div>
   </div>
   <div>
-    <div class="h-[87vh] overflow-auto">
+    <div class="h-[83.2vh] overflow-auto">
       <table
         class="table-auto min-w-full text-left text-sm font-light border mt-3">
         <thead>

@@ -262,7 +262,7 @@
 </script>
 
 <main
-  class="p-5 pl-10 pr-10 col-span-10 h-screen"
+  class="p-5 pl-10 pr-10 col-span-10 m-5 rounded-2xl bg-white"
   style="display: {showLoggedIn}">
   <div class="flex justify-between py-5">
     <h1 class="text-2xl font-extrabold mb-0">Announcements</h1>
@@ -278,7 +278,7 @@
       }}>New Announcement</button>
   </div>
 
-  <div class="h-[87vh] overflow-auto">
+  <div class="h-[83.2vh] overflow-auto">
     <div class="all-announcements py-5 background-neutral-100">
       <h2 class="text-lg font-bold">Pinned Announcements</h2>
       <table

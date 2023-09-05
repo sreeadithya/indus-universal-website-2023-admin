@@ -30,7 +30,6 @@
 </script>
 
 <main
-  class="prose rounded-lg border max-w-[80vw] mr-0 px-5 py-3 mb-4 mt-7 border-gray-300 p-5 pl-10 pr-10 col-span-10 h-[90vh]"
->
+  class="prose border max-w-[80vw] h-[95.8vh] mr-0 px-5 py-3 border-gray-300 p-5 pl-10 pr-10 col-span-10 m-5 rounded-2xl bg-white">
   <div id="departmentMembersEditor" class="h-full w-full" />
 </main>

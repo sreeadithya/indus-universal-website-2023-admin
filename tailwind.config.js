@@ -4,6 +4,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {},
+      colors: {
+        darkgray: "#17191C",
+      },
     },
   },
   plugins: [require("flowbite/plugin"), require("@tailwindcss/typography")],
