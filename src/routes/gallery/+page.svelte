@@ -21,9 +21,17 @@
     getDownloadURL,
     uploadBytesResumable,
     deleteObject,
+    listAll,
   } from "firebase/storage";
   import { storage, db } from "../firebase";
-  import { ref as dbref, set, push, update, get } from "firebase/database";
+  import {
+    ref as dbref,
+    set,
+    push,
+    update,
+    get,
+    remove,
+  } from "firebase/database";
   import { onMount } from "svelte";
   import { getNotificationsContext } from "svelte-notifications";
   const { addNotification } = getNotificationsContext();
@@ -44,31 +52,41 @@
       ];
     }
   }
-  function deleteAlbum() {}
+  function deleteAlbum(nameOfAlbum) {
+    listAll(ref(storage, `gallery/${nameOfAlbum}/`))
+      .then((res) => {
+        res.items.forEach((itemRef) => {
+          deleteObject(itemRef);
+        });
+      })
+      .catch((error) => {
+        // Uh-oh, an error occurred!
+      });
+    remove(dbref(db, "gallery/" + nameOfAlbum));
+    getData();
+  }
 
   function updateAlbum() {
-    // set(dbref(db, "gallery/" + editAlbumName), {
-    //   title: editAlbumName,
-    //   imageLinks: editImageLinks,
-    //   albumDate: editAlbumDate,
-    // }).then(() => {
-    // refFromURL("https://firebasestorage.googleapis.com...")
-    //   .delete()
-    //   .then(function () {
-    //     // File deleted successfully
-    //   })
-    //   .catch(function (error) {
-    //     // Uh-oh, an error occurred!
-    //   });
-
-    for (let i = 0; i < deletedImages.length; i++) {
-      console.log(deletedImages[i]);
-      var segments = deletedImages[i].split("/");
-      var lastSegment = segments[segments.length - 1];
-      var decodedFileName = decodeURIComponent(lastSegment);
-      console.log(decodedFileName);
-    }
-    // });
+    set(dbref(db, "gallery/" + editAlbumName), {
+      title: editAlbumName,
+      imageLinks: editImageLinks,
+      albumDate: editAlbumDate,
+    }).then(() => {
+      for (let i = 0; i < deletedImages.length; i++) {
+        let segments = deletedImages[i].split("/");
+        let lastSegment = segments[segments.length - 1];
+        let decodedFileName = extractFileName(decodeURIComponent(lastSegment));
+        deleteObject(
+          ref(storage, `gallery/${editAlbumName}/${decodedFileName}`)
+        )
+          .then(() => {
+            console.log("deleted" + decodedFileName);
+          })
+          .catch((error) => {
+            // sht has erroredd sins have been done
+          });
+      }
+    });
   }
 
   import { onAuthStateChanged } from "firebase/auth";
@@ -125,7 +143,10 @@
     const uploadPromises = [];
 
     for (let i = 0; i < imagesLocation.length; i++) {
-      const storageRef = ref(storage, `images/${imagesLocation[i].name}`);
+      const storageRef = ref(
+        storage,
+        `gallery/${albumName}/${imagesLocation[i].name}`
+      );
       const uploadTask = uploadBytesResumable(storageRef, imagesLocation[i]);
 
       const uploadPromise = new Promise((resolve, reject) => {
@@ -179,6 +200,7 @@
           removeAfter: "5000",
           type: "success",
         });
+        getData();
       })
       .catch((error) => {
         uploadError = error;
@@ -195,13 +217,21 @@
     console.log();
     console.log(deletedImages);
   }
+
+  function extractFileName(url) {
+    const match = url.match(/\/([^/?#]+)\?/);
+
+    if (match && match[1]) {
+      return decodeURIComponent(match[1]);
+    }
+  }
 </script>
 
 <main
   style="display: {showLoggedIn};"
   class="py-5 px-10 col-span-10 overflow-y-visible m-5 rounded-2xl bg-white">
   <div class="py-5 flex justify-between items-center">
-    <h1 class="text-2xl font-bold">Gallery</h1>
+    <h1 class="text-2xl font-extrabold mb-0">Gallery</h1>
     <button
       on:click={() => {
         if (showNewAlbum == "none") {
@@ -275,7 +305,7 @@
   <div
     style="display: {showEditAlbum};"
     class="absolute bg-[#00000059] top-0 left-0 w-screen h-full flex justify-center items-center">
-    <div class="p-5 bg-white w-[80%] h-[80%] rounded-2xl">
+    <div class="p-5 bg-white w-[80%] h-auto rounded-2xl">
       <div class="flex justify-between pb-5">
         <h2 class="text-lg font-bold">Edit Album</h2>
         <button
@@ -302,12 +332,12 @@
 
           <!-- show images here -->
 
-          <div class="overflow-auto h-[50vh] mt-3">
+          <div class="overflow-auto max-h-[45vh] mt-3">
             <div class="masonry">
               {#each editImageLinks as item (item)}
-                <div class="masonry-item p-4 bg-white shadow rounded-lg">
+                <div class="masonry-item bg-white shadow rounded-lg relative">
                   <button
-                    class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 outline"
+                    class="absolute bottom-3 right-3 p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 bg-[#ffffff8c] backdrop-blur-sm outline"
                     on:click={deleteImageFromAlbum(item)}
                     ><img
                       src="./TrashDeleteBin.svg"
@@ -318,23 +348,30 @@
               {/each}
             </div>
           </div>
-          <label for="editFileInput">Add Images</label>
-          <input
-            class="block w-full text-lg border border-gray-300 rounded-lg cursor-pointer focus:outline-none mt-5"
-            type="file"
-            alt=""
-            name=""
-            id="editFileInput"
-            bind:files={editImagesLocation}
-            multiple
-            accept=".png, .jpg, .jpeg" />
-
-          <button
-            on:click={updateAlbum}
-            style="display: {showUploadButton}"
-            class="px-5 py-2 mt-5 rounded-lg items-center gap-2 bg-indigo-300 text-black"
-            >Update Album
-          </button>
+          <div class="flex justify-between align-bottom items-end">
+            <div>
+              <input
+                class="block text-lg border border-gray-300 rounded-lg cursor-pointer focus:outline-none mt-5"
+                type="file"
+                alt=""
+                name=""
+                id="editFileInput"
+                bind:files={editImagesLocation}
+                multiple
+                accept=".png, .jpg, .jpeg" />
+              <p
+                class=" text-sm text-gray-500 dark:text-gray-300 mt-1"
+                id="file_input_help">
+                Select more images to add to the album
+              </p>
+            </div>
+            <button
+              on:click={updateAlbum}
+              style="display: {showUploadButton}"
+              class="px-5 py-2 mt-5 h-min rounded-lg items-center gap-2 bg-indigo-300 text-black"
+              >Update Album
+            </button>
+          </div>
         </form>
         <div style="display: {showProg};">
           <img
@@ -347,8 +384,7 @@
   </div>
   <div>
     <div class="h-[83.2vh] overflow-auto">
-      <table
-        class="table-auto min-w-full text-left text-sm font-light border mt-3">
+      <table class="table-auto min-w-full text-left text-sm font-light mt-3">
         <thead>
           <tr class="border-b">
             <th scope="col" class="px-6 py-4">#</th>
@@ -371,7 +407,7 @@
 
                   <button
                     class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 outline"
-                    on:click={deleteAlbum(1)}
+                    on:click={deleteAlbum(i)}
                     ><img
                       src="./TrashDeleteBin.svg"
                       alt=""

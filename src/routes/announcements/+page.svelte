@@ -4,7 +4,6 @@
   import Header from "@editorjs/header";
   import Underline from "@editorjs/underline";
   import List from "@editorjs/list";
-  import ImageTool from "@editorjs/image";
 
   import { db } from "../firebase";
   import { onMount } from "svelte";
@@ -101,15 +100,7 @@
         inlineToolbar: true,
       },
       Underline,
-      image: {
-        class: ImageTool,
-        config: {
-          endpoints: {
-            byFile: "http://localhost:8008/uploadFile", // Your backend file uploader endpoint
-            byUrl: "http://localhost:8008/fetchUrl", // Your endpoint that provides uploading by Url
-          },
-        },
-      },
+
       List: {
         class: List,
         inlineToolbar: true,
@@ -281,8 +272,7 @@
   <div class="h-[83.2vh] overflow-auto">
     <div class="all-announcements py-5 background-neutral-100">
       <h2 class="text-lg font-bold">Pinned Announcements</h2>
-      <table
-        class="table-auto min-w-full text-left text-sm font-light border mt-3">
+      <table class="table-auto min-w-full text-left text-sm font-light mt-3">
         <thead>
           <tr class="border-b">
             <th scope="col" class="px-6 py-4">#</th>
@@ -321,8 +311,7 @@
       </table>
 
       <h2 class="text-lg font-bold mt-10">Announcements</h2>
-      <table
-        class="table-auto min-w-full text-left text-sm font-light border mt-3">
+      <table class="table-auto min-w-full text-left text-sm font-light mt-3">
         <thead>
           <tr class="border-b">
             <th scope="col" class="px-6 py-4">#</th>
@@ -374,23 +363,13 @@
           <img src="./XCloseDelete.svg" alt="" title="Close" class="w-5" />
         </button>
       </div>
-      <div class="flex flex-row items-center gap-5 pb-5">
+      <div class="flex pb-5">
         <input
           name=""
           id=""
           class="py-3 pl-5 flex-grow rounded-lg border col-span-1 border-gray-300"
           placeholder="Title of the Annoucement"
           bind:value={titleAnnouncement} />
-        <input
-          type="date"
-          class="py-3 pl-5 rounded-lg border border-gray-300"
-          name=""
-          id="date"
-          bind:value={date} />
-        <div class="col-span-1">
-          <input type="checkbox" id="isPinned" bind:checked={pinned} />
-          <label for="isPinned">📌</label>
-        </div>
       </div>
 
       <div
@@ -398,27 +377,33 @@
         <div id="newAnnouncementEditor" />
       </div>
 
-      <button
-        class="px-5 py-2 rounded-lg bg-indigo-300 text-black"
-        on:click={() => {
-          // $editor
-          //   .save()
-          //   .then((outputData) => {
-          //     setTimeout(showData, 10000);
-          //   })
-          //   .catch((error) => {
-          //     console.log("Saving failed: ", error);
-          //   });
+      <div class=" flex flex-row items-center gap-5 justify-between">
+        <div class="flex flex-row items-center gap-10">
+          <input
+            type="date"
+            class="py-3 pl-5 rounded-lg border border-gray-300"
+            name=""
+            id="date"
+            bind:value={date} />
+          <div class="col-span-1">
+            <input type="checkbox" id="isPinned" bind:checked={pinned} />
+            <label for="isPinned">📌</label>
+          </div>
+        </div>
 
-          editor
-            .save()
-            .then((outputData) => {
-              publishData(outputData);
-            })
-            .catch((error) => {
-              console.log("Saving failed: ", error);
-            });
-        }}>Publish Announcement</button>
+        <button
+          class="px-5 py-2 rounded-lg bg-indigo-300 text-black"
+          on:click={() => {
+            editor
+              .save()
+              .then((outputData) => {
+                publishData(outputData);
+              })
+              .catch((error) => {
+                console.log("Saving failed: ", error);
+              });
+          }}>Publish Announcement</button>
+      </div>
     </div>
   </div>
 
@@ -438,23 +423,14 @@
           <img src="./XCloseDelete.svg" alt="" title="Close" class="w-5" />
         </button>
       </div>
-      <div class="flex flex-row items-center gap-5 pb-5">
+
+      <div class="flex pb-5">
         <input
           name=""
           id=""
           class="py-3 pl-5 flex-grow rounded-lg border col-span-1 border-gray-300"
           placeholder={editAnnouncementTitle}
           disabled />
-        <input
-          type="date"
-          class="py-3 pl-5 rounded-lg border border-gray-300"
-          name=""
-          id="date"
-          bind:value={editDate} />
-        <div class="col-span-1">
-          <input type="checkbox" id="isPinned" bind:checked={editPinned} />
-          <label for="isPinned">📌</label>
-        </div>
       </div>
 
       <div
@@ -462,18 +438,33 @@
         <div id="editAnnouncementEditor" />
       </div>
 
-      <button
-        class="px-5 py-2 rounded-lg bg-indigo-300 text-black"
-        on:click={() => {
-          editor2
-            .save()
-            .then((outputData) => {
-              publishEditedData(outputData);
-            })
-            .catch((error) => {
-              console.log("Saving failed: ", error);
-            });
-        }}>Publish Changes</button>
+      <div class=" flex flex-row items-center gap-5 justify-between">
+        <div class="flex flex-row items-center gap-10">
+          <input
+            type="date"
+            class="py-3 pl-5 rounded-lg border border-gray-300"
+            name=""
+            id="date"
+            bind:value={editDate} />
+          <div class="col-span-1">
+            <input type="checkbox" id="isPinned" bind:checked={editPinned} />
+            <label for="isPinned">📌</label>
+          </div>
+        </div>
+
+        <button
+          class="px-5 py-2 rounded-lg bg-indigo-300 text-black"
+          on:click={() => {
+            editor2
+              .save()
+              .then((outputData) => {
+                publishEditedData(outputData);
+              })
+              .catch((error) => {
+                console.log("Saving failed: ", error);
+              });
+          }}>Publish Changes</button>
+      </div>
     </div>
   </div>
 </main>
