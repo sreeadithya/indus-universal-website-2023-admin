@@ -63,6 +63,10 @@
 
     for (let i = 0; i < deletedImages.length; i++) {
       console.log(deletedImages[i]);
+      var segments = deletedImages[i].split("/");
+      var lastSegment = segments[segments.length - 1];
+      var decodedFileName = decodeURIComponent(lastSegment);
+      console.log(decodedFileName);
     }
     // });
   }
