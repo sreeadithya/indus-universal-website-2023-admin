@@ -14,6 +14,15 @@ npm create svelte@latest
 npm create svelte@latest my-app
 ```
 
+## Installing dependencies
+
+To install the dependencies of this project, for some unknown reason npm needs to be forced.
+If you use pnpm this is not required.
+
+```
+npm install --force
+```
+
 ## Developing
 
 Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
