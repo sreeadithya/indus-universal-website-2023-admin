@@ -387,7 +387,7 @@
       </div>
 
       <div
-        class="prose rounded-lg border max-w-none w-[100%] mr-0 px-5 py-3 mb-4 border-gray-300">
+        class="prose rounded-lg border max-w-none overflow-auto max-h-[45vh] w-[100%] mr-0 px-5 py-3 mb-4 border-gray-300">
         <div id="newAnnouncementEditor" />
       </div>
 
@@ -448,7 +448,7 @@
       </div>
 
       <div
-        class="prose rounded-lg border max-w-none w-[100%] mr-0 px-5 py-3 mb-4 border-gray-300">
+        class="prose rounded-lg border max-w-none w-[100%] overflow-auto max-h-[45vh] mr-0 px-5 py-3 mb-4 border-gray-300">
         <div id="editAnnouncementEditor" />
       </div>
 

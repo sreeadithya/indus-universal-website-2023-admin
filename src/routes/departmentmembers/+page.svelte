@@ -114,5 +114,5 @@ pl-10 pr-10 col-span-10 m-5 rounded-2xl bg-white">
   </div>
   <div
     id="departmentMembersEditor"
-    class="h-[80vh] w-full prose rounded-lg border max-w-none mr-0 px-5 py-3 mb-4 border-gray-300 mt-3" />
+    class="h-[80vh] w-full overflow-auto prose rounded-lg border max-w-none mr-0 px-5 py-3 mb-4 border-gray-300 mt-3" />
 </main>
