@@ -4,6 +4,7 @@
   import Header from "@editorjs/header";
   import Underline from "@editorjs/underline";
   import List from "@editorjs/list";
+  import Table from "@editorjs/table";
 
   import { db } from "../firebase";
   import { onMount } from "svelte";
@@ -100,13 +101,16 @@
         inlineToolbar: true,
       },
       Underline,
-
       List: {
         class: List,
         inlineToolbar: true,
         config: {
           defaultStyle: "unordered",
         },
+      },
+      table: {
+        class: Table,
+        inlineToolbar: true,
       },
     },
     placeholder: "Edit the text of the announcement here",
@@ -126,6 +130,10 @@
         config: {
           defaultStyle: "unordered",
         },
+      },
+      table: {
+        class: Table,
+        inlineToolbar: true,
       },
     },
     placeholder: "Edit the text of the announcement here",
@@ -156,7 +164,7 @@
       });
       return;
     }
-    set(ref(db, "announcements/" + titleAnnouncement), {
+    set(ref(db, "announcements/" + titleAnnouncement.replaceAll(" ", "_")), {
       title: titleAnnouncement,
       data: editorData,
       pinned: pinned,
@@ -189,14 +197,17 @@
   }
 
   function editAnnouncement(title) {
-    get(ref(db, "announcements/" + title)).then((snapshot) => {
-      currentAnnouncement = snapshot.val();
-      editor2.blocks.render(currentAnnouncement.data);
-      showEditAnnouncement = "flex";
-      editAnnouncementTitle = currentAnnouncement.title;
-      editPinned = currentAnnouncement.pinned;
-      editDate = currentAnnouncement.date;
-    });
+    get(ref(db, "announcements/" + title.replaceAll(" ", "_"))).then(
+      (snapshot) => {
+        currentAnnouncement = snapshot.val();
+        editor2.blocks.render(currentAnnouncement.data);
+        showEditAnnouncement = "flex";
+        editAnnouncementTitle = currentAnnouncement.title;
+        editPinned = currentAnnouncement.pinned;
+        editDate = currentAnnouncement.date;
+        console.log(currentAnnouncement.data);
+      }
+    );
   }
 
   function publishEditedData(editorData) {
@@ -218,12 +229,15 @@
       });
       return;
     }
-    set(ref(db, "announcements/" + editAnnouncementTitle), {
-      title: editAnnouncementTitle,
-      data: editorData,
-      pinned: editPinned,
-      date: editDate,
-    })
+    set(
+      ref(db, "announcements/" + editAnnouncementTitle.replaceAll(" ", "_")),
+      {
+        title: editAnnouncementTitle,
+        data: editorData,
+        pinned: editPinned,
+        date: editDate,
+      }
+    )
       .then(() => {
         addNotification({
           text: "Successfully edited",
@@ -247,7 +261,7 @@
   }
 
   function deleteAnnouncement(title) {
-    remove(ref(db, "announcements/" + title));
+    remove(ref(db, "announcements/" + title.replaceAll(" ", "_")));
     setTimeout(getData, 100);
   }
 </script>

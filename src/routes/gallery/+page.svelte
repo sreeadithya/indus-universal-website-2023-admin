@@ -39,7 +39,7 @@
   let userPassword;
   function editAlbum(selectedAlbumName) {
     showEditAlbum = "flex";
-    editAlbumName = selectedAlbumName;
+    editAlbumName = selectedAlbumName.replaceAll("_", " ");
     editAlbumDate = albums[selectedAlbumName].albumDate;
     for (
       let x = 0;
@@ -62,12 +62,12 @@
       .catch((error) => {
         // Uh-oh, an error occurred!
       });
-    remove(dbref(db, "gallery/" + nameOfAlbum));
+    remove(dbref(db, "gallery/" + nameOfAlbum.replaceAll(" ", "_")));
     getData();
   }
 
   function updateAlbum() {
-    set(dbref(db, "gallery/" + editAlbumName), {
+    set(dbref(db, "gallery/" + editAlbumName.replaceAll(" ", "_")), {
       title: editAlbumName,
       imageLinks: editImageLinks,
       albumDate: editAlbumDate,
@@ -179,7 +179,7 @@
 
     Promise.all(uploadPromises)
       .then((downloadURLs) => {
-        set(dbref(db, "gallery/" + albumName), {
+        set(dbref(db, "gallery/" + albumName.replaceAll(" ", "_")), {
           title: albumName,
           imageLinks: imageLinks,
           albumDate: albumDate,
@@ -397,7 +397,8 @@
           {#each albumTitles as i, y}
             <tr class="border-b-1">
               <td class="whitespace-nowrap px-6 py-4">{y + 1}</td>
-              <td class="whitespace-nowrap px-6 py-4">{i}</td>
+              <td class="whitespace-nowrap px-6 py-4"
+                >{i.replaceAll("_", " ")}</td>
               <td class="whitespace-nowrap px-6 py-4">{albums[i].albumDate}</td>
               <td class="whitespace-nowrap px-6 py-4">
                 <div class="flex flex-row gap-4">
