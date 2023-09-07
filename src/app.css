@@ -9,20 +9,20 @@
 }
 
 body {
-  background: #020617;
+  background: #09090b;
 }
 
 ::-webkit-scrollbar {
   width: 10px;
 }
 
-::-webkit-scrollbar-track {
+/* ::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 15px;
-}
+} */
 
 ::-webkit-scrollbar-thumb {
-  background: #a8a8a8;
+  background: #adadad;
   border-radius: 15px;
 }
 

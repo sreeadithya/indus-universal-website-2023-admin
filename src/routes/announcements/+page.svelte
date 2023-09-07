@@ -6,6 +6,14 @@
   import List from "@editorjs/list";
   import Table from "@editorjs/table";
 
+  let theme = localStorage.getItem("theme");
+
+  if (theme == "dark") {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+
   import { db } from "../firebase";
   import { onMount } from "svelte";
   import { ref, set, get, child, remove } from "firebase/database";
@@ -267,12 +275,12 @@
 </script>
 
 <main
-  class="p-5 pl-10 pr-10 col-span-10 m-5 rounded-2xl bg-white"
+  class="p-5 pl-10 pr-10 col-span-10 m-5 rounded-xl bg-white dark:bg-zinc-900 dark:text-white"
   style="display: {showLoggedIn}">
   <div class="flex justify-between py-5">
     <h1 class="text-2xl font-extrabold mb-0">Announcements</h1>
     <button
-      class="px-5 py-2 rounded-lg bg-indigo-300 text-black"
+      class="px-5 py-2 rounded-lg bg-zinc-950 text-white"
       on:click={() => {
         if (showNewAnnouncement == "none") {
           showNewAnnouncement = "flex";
@@ -286,7 +294,7 @@
   <div class="h-[83.2vh] overflow-auto">
     <div class="all-announcements py-5 background-neutral-100">
       <h2 class="text-lg font-bold">Pinned Announcements</h2>
-      <table class="table-auto min-w-full text-left text-sm font-light mt-3">
+      <table class="table-auto w-full text-left text-sm font-light mt-3">
         <thead>
           <tr class="border-b">
             <th scope="col" class="px-6 py-4">#</th>
@@ -295,37 +303,50 @@
             <th scope="col" class="px-6 py-4">Options</th>
           </tr>
         </thead>
-        <tbody>
-          {#each pinnedAnnouncementsTitles as i, y}
-            <tr class="border-b-1">
-              <td class="whitespace-nowrap px-6 py-4">{y + 1}</td>
-              <td class="whitespace-nowrap px-6 py-4"
-                >{pinnedAnnouncements[i].title}</td>
-              <td class="whitespace-nowrap px-6 py-4"
-                >{pinnedAnnouncements[i].date}</td>
-              <td class="whitespace-nowrap px-6 py-4">
-                <div class="flex flex-row gap-4">
-                  <button
-                    class="px-5 hover:bg-gray-200 transition-colors py-2 rounded-lg bg-white outline-[0.5px] outline-stone-900 outline text-black"
-                    on:click={editAnnouncement(pinnedAnnouncements[i].title)}
-                    >Edit</button>
-
-                  <button
-                    class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 outline"
-                    on:click={deleteAnnouncement(pinnedAnnouncements[i].title)}
-                    ><img
-                      src="./TrashDeleteBin.svg"
-                      alt=""
-                      class="w-5" /></button>
-                </div>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
+        {#each pinnedAnnouncementsTitles as i, y}
+          <tr class="border-b-1">
+            <td class="whitespace-nowrap px-6 py-4">{y + 1}</td>
+            <td class="whitespace-nowrap px-6 py-4"
+              >{pinnedAnnouncements[i].title}</td>
+            <td class="whitespace-nowrap px-6 py-4"
+              >{pinnedAnnouncements[i].date}</td>
+            <td class="whitespace-nowrap px-6 py-4">
+              <div class="flex flex-row gap-5">
+                <button
+                  class="px-5 hover:bg-gray-200 transition-colors py-2 rounded-lg bg-white outline-[0.5px] outline-stone-900 outline text-black dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600"
+                  on:click={editAnnouncement(pinnedAnnouncements[i].title)}
+                  >Edit</button>
+                <button
+                  class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 outline dark:bg-zinc-700 dark:hover:bg-[#FF8989]"
+                  on:click={deleteAnnouncement(pinnedAnnouncements[i].title)}>
+                  {#if theme == "light"}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      fill="#000000"
+                      viewBox="0 0 256 256"
+                      ><path
+                        d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z" /></svg>
+                  {:else}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      fill="#ffffff"
+                      viewBox="0 0 256 256"
+                      ><path
+                        d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z" /></svg>
+                  {/if}
+                </button>
+              </div>
+            </td>
+          </tr>
+        {/each}
       </table>
 
       <h2 class="text-lg font-bold mt-10">Announcements</h2>
-      <table class="table-auto min-w-full text-left text-sm font-light mt-3">
+      <table class="table-auto w-full text-left text-sm font-light mt-3">
         <thead>
           <tr class="border-b">
             <th scope="col" class="px-6 py-4">#</th>
@@ -334,39 +355,54 @@
             <th scope="col" class="px-6 py-4">Options</th>
           </tr>
         </thead>
-        <tbody>
-          {#each normalAnnouncementsTitles as i, y}
-            <tr class="border-b-1">
-              <td class="whitespace-nowrap px-6 py-4">{y + 1}</td>
-              <td class="whitespace-nowrap px-6 py-4"
-                >{normalAnnouncements[i].title}</td>
-              <td class="whitespace-nowrap px-6 py-4"
-                >{normalAnnouncements[i].date}</td>
-              <td class="whitespace-nowrap px-6 py-4">
-                <div class="flex flex-row gap-4">
-                  <button
-                    class="px-5 py-2 hover:bg-gray-200 transition-colors rounded-lg bg-white outline-[0.5px] outline-stone-900 outline text-black"
-                    on:click={editAnnouncement(normalAnnouncements[i].title)}
-                    >Edit</button>
-                  <button
-                    class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 outline"
-                    on:click={deleteAnnouncement(normalAnnouncements[i].title)}
-                    ><img
-                      src="./TrashDeleteBin.svg"
-                      alt=""
-                      class="w-5" /></button>
-                </div>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
+        {#each normalAnnouncementsTitles as i, y}
+          <tr class="border-b-1">
+            <td class="whitespace-nowrap px-6 py-4">{y + 1}</td>
+            <td class="whitespace-nowrap px-6 py-4"
+              >{normalAnnouncements[i].title}</td>
+            <td class="whitespace-nowrap px-6 py-4"
+              >{normalAnnouncements[i].date}</td>
+            <td class="whitespace-nowrap px-6 py-4">
+              <div class="flex flex-row gap-4">
+                <button
+                  class="px-5 hover:bg-gray-200 transition-colors py-2 rounded-lg bg-white outline-[0.5px] outline-stone-900 outline text-black dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600"
+                  on:click={editAnnouncement(normalAnnouncements[i].title)}
+                  >Edit</button>
+                <button
+                  class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 outline dark:bg-zinc-700 dark:hover:bg-[#FF8989]"
+                  on:click={deleteAnnouncement(normalAnnouncements[i].title)}>
+                  {#if theme == "light"}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      fill="#000000"
+                      viewBox="0 0 256 256"
+                      ><path
+                        d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z" /></svg>
+                  {:else}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      fill="#ffffff"
+                      viewBox="0 0 256 256"
+                      ><path
+                        d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z" /></svg>
+                  {/if}
+                </button>
+              </div>
+            </td>
+          </tr>
+        {/each}
       </table>
     </div>
   </div>
   <div
     style="display: {showNewAnnouncement};"
     class="absolute bg-[#00000059] top-0 left-0 w-screen h-full flex justify-center items-center">
-    <div class="p-5 bg-white w-[50%] rounded-2xl">
+    <div
+      class="p-5 bg-white w-[50%] rounded-2xl dark:bg-zinc-900 dark:text-white">
       <div class="flex justify-between pb-5">
         <h2 class="text-lg font-bold">Add New Annoucement</h2>
         <button
@@ -374,20 +410,38 @@
             showNewAnnouncement = "none";
             editor.clear();
           }}>
-          <img src="./XCloseDelete.svg" alt="" title="Close" class="w-5" />
+          {#if theme == "light"}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="#000000"
+              viewBox="0 0 256 256"
+              ><path
+                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
+          {:else}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="#ffffff"
+              viewBox="0 0 256 256"
+              ><path
+                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
+          {/if}
         </button>
       </div>
       <div class="flex pb-5">
         <input
           name=""
           id=""
-          class="py-3 pl-5 flex-grow rounded-lg border col-span-1 border-gray-300"
+          class="py-3 pl-5 flex-grow rounded-lg border col-span-1 border-gray-300 dark:bg-zinc-900 dark:text-white"
           placeholder="Title of the Annoucement"
           bind:value={titleAnnouncement} />
       </div>
 
       <div
-        class="prose rounded-lg border max-w-none overflow-auto max-h-[45vh] w-[100%] mr-0 px-5 py-3 mb-4 border-gray-300">
+        class="prose rounded-lg border max-w-none overflow-auto max-h-[45vh] w-[100%] mr-0 px-5 py-3 mb-4 border-gray-300 dark:bg-zinc-900 dark:text-white">
         <div id="newAnnouncementEditor" />
       </div>
 
@@ -395,7 +449,7 @@
         <div class="flex flex-row items-center gap-10">
           <input
             type="date"
-            class="py-3 pl-5 rounded-lg border border-gray-300"
+            class="py-3 px-4 pl-5 rounded-lg border border-gray-300 dark:bg-zinc-900 dark:text-white"
             name=""
             id="date"
             bind:value={date} />
@@ -406,7 +460,7 @@
         </div>
 
         <button
-          class="px-5 py-2 rounded-lg bg-indigo-300 text-black"
+          class="px-5 py-2 rounded-lg bg-zinc-950 text-white"
           on:click={() => {
             editor
               .save()
@@ -426,7 +480,8 @@
   <div
     style="display: {showEditAnnouncement};"
     class="absolute bg-[#00000059] top-0 left-0 w-screen h-full flex justify-center items-center">
-    <div class="p-5 bg-white w-[50%] rounded-2xl">
+    <div
+      class="p-5 bg-white w-[50%] rounded-2xl dark:bg-zinc-900 dark:text-white">
       <div class="flex justify-between pb-5">
         <h2 class="text-lg font-bold">Edit announcement</h2>
         <button
@@ -442,13 +497,13 @@
         <input
           name=""
           id=""
-          class="py-3 pl-5 flex-grow rounded-lg border col-span-1 border-gray-300"
+          class="py-3 pl-5 flex-grow rounded-lg border col-span-1 border-gray-300 dark:bg-zinc-900 dark:text-white"
           placeholder={editAnnouncementTitle}
           disabled />
       </div>
 
       <div
-        class="prose rounded-lg border max-w-none w-[100%] overflow-auto max-h-[45vh] mr-0 px-5 py-3 mb-4 border-gray-300">
+        class="prose rounded-lg border max-w-none w-[100%] overflow-auto max-h-[45vh] mr-0 px-5 py-3 mb-4 border-gray-300 dark:bg-zinc-900 dark:text-white">
         <div id="editAnnouncementEditor" />
       </div>
 
@@ -456,7 +511,7 @@
         <div class="flex flex-row items-center gap-10">
           <input
             type="date"
-            class="py-3 pl-5 rounded-lg border border-gray-300"
+            class="py-3 px-4 pl-5 rounded-lg border border-gray-300 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600"
             name=""
             id="date"
             bind:value={editDate} />
@@ -467,7 +522,7 @@
         </div>
 
         <button
-          class="px-5 py-2 rounded-lg bg-indigo-300 text-black"
+          class="px-5 py-2 rounded-lg bg-zinc-950 text-white"
           on:click={() => {
             editor2
               .save()

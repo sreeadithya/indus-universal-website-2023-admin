@@ -5,7 +5,7 @@
 </script>
 
 <Notifications>
-  <div class="grid grid-cols-12 bg-gray-950">
+  <div class="grid grid-cols-12 bg-zinc-950">
     <Nav />
     <!-- <div class=""> -->
     <slot />

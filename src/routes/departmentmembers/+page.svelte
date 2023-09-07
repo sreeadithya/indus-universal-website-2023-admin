@@ -96,8 +96,8 @@
 
 <main
   class=" border max-w-[80vw] h-[95.8vh] mr-0 px-5 py-3 border-gray-300 p-5
-pl-10 pr-10 col-span-10 m-5 rounded-2xl bg-white">
-  <div class="flex justify-between py-5">
+pl-10 pr-10 col-span-10 m-5 rounded-xl bg-white">
+  <div class="flex justify-between items-center py-5">
     <div class="flex flex-col">
       <h1 class="text-2xl font-extrabold mb-0">Department Members</h1>
 
@@ -109,7 +109,7 @@ pl-10 pr-10 col-span-10 m-5 rounded-2xl bg-white">
     </div>
 
     <button
-      class="px-5 py-2 rounded-lg bg-indigo-300 text-black"
+      class="px-5 py-2 rounded-lg bg-zinc-950 text-white"
       on:click={saveData}>Save Data</button>
   </div>
   <div
