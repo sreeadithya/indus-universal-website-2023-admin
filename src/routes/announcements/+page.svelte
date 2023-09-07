@@ -5,6 +5,8 @@
   import Underline from "@editorjs/underline";
   import List from "@editorjs/list";
   import Table from "@editorjs/table";
+  import AttachesTool from "@editorjs/attaches";
+  import ImageTool from "@editorjs/image";
 
   let theme = localStorage.getItem("theme");
 
@@ -14,11 +16,19 @@
     document.documentElement.classList.remove("dark");
   }
 
-  import { db } from "../firebase";
+  import { db, storage } from "../firebase";
   import { onMount } from "svelte";
   import { ref, set, get, child, remove } from "firebase/database";
+  import {
+    ref as storageRef,
+    getDownloadURL,
+    uploadBytesResumable,
+    deleteObject,
+    listAll,
+  } from "firebase/storage";
   import { getNotificationsContext } from "svelte-notifications";
   const { addNotification } = getNotificationsContext();
+  let downloadURL;
 
   let userEmail;
   let userPassword;
@@ -58,6 +68,7 @@
   let normalAnnouncements = [];
   let pinnedAnnouncementsTitles = [];
   let normalAnnouncementsTitles = [];
+  let showTitleAnnouncement = "block";
 
   function getData() {
     announcements = {};
@@ -120,6 +131,109 @@
         class: Table,
         inlineToolbar: true,
       },
+      attaches: {
+        class: AttachesTool,
+        config: {
+          uploader: {
+            async uploadByFile(file) {
+              console.log(file);
+              console.log(titleAnnouncement);
+
+              const storeRef = storageRef(
+                storage,
+                `announcements/${titleAnnouncement.replaceAll(" ", "_")}/${
+                  file.name
+                }`
+              );
+              console.log(storeRef);
+
+              // Create a promise to resolve with the download URL when the upload is complete
+              return new Promise((resolve, reject) => {
+                const uploadTask = uploadBytesResumable(storeRef, file);
+
+                uploadTask.on(
+                  "state_changed",
+                  (snapshot) => {
+                    console.log(snapshot);
+                  },
+                  (error) => {
+                    reject(error);
+                    console.log(error);
+                  },
+                  () => {
+                    // Once the upload is complete, get the download URL
+                    getDownloadURL(uploadTask.snapshot.ref)
+                      .then((downloadURL) => {
+                        // Resolve the promise with the download URL
+                        resolve({
+                          success: 1,
+                          file: {
+                            url: downloadURL,
+                          },
+                        });
+                      })
+                      .catch((error) => {
+                        reject(error);
+                        console.log(error);
+                      });
+                  }
+                );
+              });
+            },
+          },
+        },
+      },
+      image: {
+        class: ImageTool,
+        config: {
+          uploader: {
+            async uploadByFile(file) {
+              console.log(file);
+              console.log(titleAnnouncement);
+
+              const storeRef = storageRef(
+                storage,
+                `announcements/${titleAnnouncement.replaceAll(" ", "_")}/${
+                  file.name
+                }`
+              );
+              console.log(storeRef);
+
+              // Create a promise to resolve with the download URL when the upload is complete
+              return new Promise((resolve, reject) => {
+                const uploadTask = uploadBytesResumable(storeRef, file);
+                uploadTask.on(
+                  "state_changed",
+                  (snapshot) => {
+                    console.log(snapshot);
+                  },
+                  (error) => {
+                    reject(error);
+                    console.log(error);
+                  },
+                  () => {
+                    // Once the upload is complete, get the download URL
+                    getDownloadURL(uploadTask.snapshot.ref)
+                      .then((downloadURL) => {
+                        // Resolve the promise with the download URL
+                        resolve({
+                          success: 1,
+                          file: {
+                            url: downloadURL,
+                          },
+                        });
+                      })
+                      .catch((error) => {
+                        reject(error);
+                        console.log(error);
+                      });
+                  }
+                );
+              });
+            },
+          },
+        },
+      },
     },
     placeholder: "Edit the text of the announcement here",
     holder: "newAnnouncementEditor",
@@ -143,6 +257,109 @@
         class: Table,
         inlineToolbar: true,
       },
+      attaches: {
+        class: AttachesTool,
+        config: {
+          uploader: {
+            async uploadByFile(file) {
+              console.log(file);
+              console.log(editAnnouncementTitle);
+
+              const storeRef = storageRef(
+                storage,
+                `announcements/${editAnnouncementTitle.replaceAll(" ", "_")}/${
+                  file.name
+                }`
+              );
+              console.log(storeRef);
+
+              // Create a promise to resolve with the download URL when the upload is complete
+              return new Promise((resolve, reject) => {
+                const uploadTask = uploadBytesResumable(storeRef, file);
+
+                uploadTask.on(
+                  "state_changed",
+                  (snapshot) => {
+                    console.log(snapshot);
+                  },
+                  (error) => {
+                    reject(error);
+                    console.log(error);
+                  },
+                  () => {
+                    // Once the upload is complete, get the download URL
+                    getDownloadURL(uploadTask.snapshot.ref)
+                      .then((downloadURL) => {
+                        // Resolve the promise with the download URL
+                        resolve({
+                          success: 1,
+                          file: {
+                            url: downloadURL,
+                          },
+                        });
+                      })
+                      .catch((error) => {
+                        reject(error);
+                        console.log(error);
+                      });
+                  }
+                );
+              });
+            },
+          },
+        },
+      },
+      image: {
+        class: ImageTool,
+        config: {
+          uploader: {
+            async uploadByFile(file) {
+              console.log(file);
+              console.log(editAnnouncementTitle);
+
+              const storeRef = storageRef(
+                storage,
+                `announcements/${editAnnouncementTitle.replaceAll(" ", "_")}/${
+                  file.name
+                }`
+              );
+              console.log(storeRef);
+
+              // Create a promise to resolve with the download URL when the upload is complete
+              return new Promise((resolve, reject) => {
+                const uploadTask = uploadBytesResumable(storeRef, file);
+                uploadTask.on(
+                  "state_changed",
+                  (snapshot) => {
+                    console.log(snapshot);
+                  },
+                  (error) => {
+                    reject(error);
+                    console.log(error);
+                  },
+                  () => {
+                    // Once the upload is complete, get the download URL
+                    getDownloadURL(uploadTask.snapshot.ref)
+                      .then((downloadURL) => {
+                        // Resolve the promise with the download URL
+                        resolve({
+                          success: 1,
+                          file: {
+                            url: downloadURL,
+                          },
+                        });
+                      })
+                      .catch((error) => {
+                        reject(error);
+                        console.log(error);
+                      });
+                  }
+                );
+              });
+            },
+          },
+        },
+      },
     },
     placeholder: "Edit the text of the announcement here",
     holder: "editAnnouncementEditor",
@@ -150,19 +367,12 @@
 
   let showNewAnnouncement = "none";
 
+  let showEditorJs = "none";
+
   let date = null;
-  let titleAnnouncement;
+  let titleAnnouncement = "";
 
   function publishData(editorData) {
-    if (!titleAnnouncement) {
-      addNotification({
-        text: "Please add a title",
-        position: "bottom-center",
-        removeAfter: "5000",
-        type: "warning",
-      });
-      return;
-    }
     if (!date) {
       addNotification({
         text: "Please add a date for the announcement",
@@ -172,6 +382,9 @@
       });
       return;
     }
+
+    console.log(editorData);
+
     set(ref(db, "announcements/" + titleAnnouncement.replaceAll(" ", "_")), {
       title: titleAnnouncement,
       data: editorData,
@@ -190,6 +403,7 @@
         pinned = false;
         date = undefined;
         showNewAnnouncement = "none";
+        showEditorJs = "none";
         editor.clear();
       })
       .catch((error) => {
@@ -404,10 +618,18 @@
     <div
       class="p-5 bg-white w-[50%] rounded-2xl dark:bg-zinc-900 dark:text-white">
       <div class="flex justify-between pb-5">
-        <h2 class="text-lg font-bold">Add New Annoucement</h2>
+        <h2 class="text-lg font-bold">
+          Add New Annoucement {#if titleAnnouncement != "" && showEditorJs == "block"}
+            ({titleAnnouncement})
+          {/if}
+        </h2>
         <button
           on:click={() => {
             showNewAnnouncement = "none";
+            showTitleAnnouncement = "block";
+            showEditorJs = "none";
+            titleAnnouncement = "";
+
             editor.clear();
           }}>
           {#if theme == "light"}
@@ -431,21 +653,61 @@
           {/if}
         </button>
       </div>
-      <div class="flex pb-5">
+      <div class="flex pb-5 gap-5">
         <input
           name=""
           id=""
+          style="display: {showTitleAnnouncement};"
           class="py-3 pl-5 flex-grow rounded-lg border col-span-1 border-gray-300 dark:bg-zinc-900 dark:text-white"
           placeholder="Title of the Annoucement"
           bind:value={titleAnnouncement} />
+        <button
+          class=" px-5 py-2 rounded-lg bg-zinc-950 text-white"
+          style="display: {showTitleAnnouncement};"
+          on:click={() => {
+            if (titleAnnouncement == "") {
+              addNotification({
+                text: "Please add a title",
+                position: "bottom-center",
+                removeAfter: "5000",
+                type: "warning",
+              });
+              return;
+            }
+            showTitleAnnouncement = "none";
+            showEditorJs = "block";
+          }}>
+          {#if theme == "light"}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="#ffffff"
+              viewBox="0 0 256 256"
+              ><path
+                d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" /></svg>
+          {:else}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="#000000"
+              viewBox="0 0 256 256"
+              ><path
+                d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" /></svg>
+          {/if}
+        </button>
       </div>
 
       <div
-        class="prose rounded-lg border max-w-none overflow-auto max-h-[45vh] w-[100%] mr-0 px-5 py-3 mb-4 border-gray-300 dark:bg-zinc-900 dark:text-white">
+        class="prose rounded-lg border max-w-none overflow-auto max-h-[45vh] w-[100%] mr-0 px-5 py-3 mb-4 border-gray-300 dark:bg-zinc-900 dark:text-white"
+        style="display: {showEditorJs};">
         <div id="newAnnouncementEditor" />
       </div>
 
-      <div class=" flex flex-row items-center gap-5 justify-between">
+      <div
+        class=" flex flex-row items-center gap-5 justify-between"
+        style="display: {showEditorJs};">
         <div class="flex flex-row items-center gap-10">
           <input
             type="date"
@@ -460,6 +722,7 @@
         </div>
 
         <button
+          style="display: {showEditorJs};"
           class="px-5 py-2 rounded-lg bg-zinc-950 text-white"
           on:click={() => {
             editor
