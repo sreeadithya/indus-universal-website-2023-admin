@@ -80,7 +80,7 @@
 </script>
 
 <nav class="col-span-2" style="display: {showLoggedIn}">
-  <div class="fixed pl-4 pr-5 h-full w-[17%]">
+  <div class="fixed pl-4 pr-5 h-full w-[18%]">
     <ul class="border-spacing-6 space-y-2 mt-3 text-white pt-2">
       <li>
         {#if announcementsActive}
