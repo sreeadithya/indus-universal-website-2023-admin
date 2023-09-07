@@ -1,6 +1,6 @@
 # IUS Adminstrator Dashboard 2023
 
-Admin Dashboard of Indus Universal School, powered by [`SvelteKit`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+Admin Dashboard for Indus Universal School's 2023 website redesign project, undertaken by the STEM department of 2023.
 
 ## Installing dependencies
 
@@ -14,7 +14,7 @@ npm install --force
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install`), start a development server:
 
 ```bash
 npm run dev
@@ -26,9 +26,9 @@ npm run dev -- --open
 npm run host
 ```
 
-### A project by STEM department of IUS
+## Members who have worked on this project
 
-- Aaloke
-- Adithya
-- Hemanth
-- Hussain
+- Aaloke Eppalapalli
+- Hemanth Tenneti
+- Hussain Khorakiwala
+- Sree Adithya
