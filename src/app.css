@@ -8,10 +8,6 @@
   font-family: "Inter", sans-serif;
 }
 
-body {
-  background: #09090b;
-}
-
 ::-webkit-scrollbar {
   width: 10px;
 }

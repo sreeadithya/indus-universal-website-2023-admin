@@ -374,25 +374,14 @@
           on:click={() => {
             showNewAlbum = "none";
           }}>
-          {#if theme == "light"}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              fill="#000000"
-              viewBox="0 0 256 256"
-              ><path
-                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
-          {:else}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              fill="#ffffff"
-              viewBox="0 0 256 256"
-              ><path
-                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
-          {/if}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            class="fill-black dark:fill-white"
+            viewBox="0 0 256 256"
+            ><path
+              d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
         </button>
       </div>
       <div>
@@ -405,7 +394,7 @@
           <input
             type="date"
             bind:value={albumDate}
-            class="py-3 px-4 pl-5 rounded-lg border border-gray-300 w-[50%] dark:bg-zinc-900 dark:text-white" />
+            class="py-3 px-4 pl-5 rounded-lg border border-gray-300 w-[50%] dark:bg-zinc-900 dark:text-white dark:" />
         </div>
 
         <div class="flex justify-between items-end">
@@ -466,25 +455,14 @@
             editImageLinks = [];
             editImagesLocation = [];
           }}>
-          {#if theme == "light"}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              fill="#000000"
-              viewBox="0 0 256 256"
-              ><path
-                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
-          {:else}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              fill="#ffffff"
-              viewBox="0 0 256 256"
-              ><path
-                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
-          {/if}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            class="fill-black dark:fill-white"
+            viewBox="0 0 256 256"
+            ><path
+              d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
         </button>
       </div>
       <div>
@@ -510,10 +488,15 @@
                   <button
                     class="absolute bottom-3 right-3 p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 bg-[#ffffff8c] backdrop-blur-sm outline"
                     on:click={deleteImageFromAlbum(item)}
-                    ><img
-                      src="./TrashDeleteBin.svg"
-                      alt=""
-                      class="w-5" /></button>
+                    ><svg
+                      class="fill-black"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 256 256"
+                      ><path
+                        d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z" /></svg
+                    ></button>
                   <img src={item} alt="" class="mt-3" />
                 </div>
               {/each}
@@ -579,30 +562,19 @@
               <td class="whitespace-nowrap px-6 py-4">
                 <div class="flex flex-row gap-4">
                   <button
-                    class="px-5 hover:bg-gray-200 transition-colors py-2 rounded-lg bg-white outline-[0.5px] outline-stone-900 outline text-black dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600"
+                    class="px-5 hover:bg-gray-200 transition-colors py-2 rounded-lg outline-[0.5px] border border-stone-900 text-black dark:border-white dark:text-white dark:hover:bg-zinc-800"
                     on:click={editAlbum(i)}>Edit</button>
                   <button
-                    class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 outline dark:bg-zinc-700 dark:hover:bg-[#FF8989]"
+                    class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] border border-stone-900 dark:border-white dark:hover:bg-[#FF8989]"
                     on:click={deleteAlbum(i)}>
-                    {#if theme == "light"}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        fill="#000000"
-                        viewBox="0 0 256 256"
-                        ><path
-                          d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z" /></svg>
-                    {:else}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        fill="#ffffff"
-                        viewBox="0 0 256 256"
-                        ><path
-                          d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z" /></svg>
-                    {/if}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      class="fill-black dark:fill-white"
+                      viewBox="0 0 256 256"
+                      ><path
+                        d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z" /></svg>
                   </button>
                 </div>
               </td>
@@ -613,6 +585,19 @@
     </div>
   </div>
 </main>
+{#if theme == "light"}
+  <style>
+    input {
+      color-scheme: light;
+    }
+  </style>
+{:else}
+  <style>
+    input {
+      color-scheme: dark;
+    }
+  </style>
+{/if}
 
 <style>
   .masonry {
