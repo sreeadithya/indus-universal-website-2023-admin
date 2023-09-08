@@ -29,6 +29,6 @@
     "@editorjs/underline": "^1.1.0",
     "@tailwindcss/typography": "^0.5.9",
     "firebase": "^10.3.0",
-    "svelte-notifications": "^0.9.98"
+    "notyf": "^3.10.0"
   }
 }

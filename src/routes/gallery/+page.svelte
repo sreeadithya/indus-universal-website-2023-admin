@@ -23,7 +23,15 @@
   } else {
     document.documentElement.classList.remove("dark");
   }
-
+  import { Notyf } from "notyf";
+  import "notyf/notyf.min.css";
+  var notyf = new Notyf({
+    duration: 2000,
+    position: {
+      x: "center",
+      y: "bottom",
+    },
+  });
   import {
     ref,
     getDownloadURL,
@@ -41,8 +49,6 @@
     remove,
   } from "firebase/database";
   import { onMount } from "svelte";
-  import { getNotificationsContext } from "svelte-notifications";
-  const { addNotification } = getNotificationsContext();
   let userEmail;
   let userPassword;
   function getData() {
@@ -213,12 +219,9 @@
           .catch((error) => {
             uploadError = error;
           });
-        addNotification({
-          text: "Successfully Updated Album",
-          position: "bottom-center",
-          removeAfter: "5000",
-          type: "success",
-        });
+
+        notyf.success("Successfully Updated Album");
+
         editImageLinks = [];
         getData();
       });
@@ -315,12 +318,7 @@
           const fileInput = document.getElementById("fileInput");
           fileInput.value = "";
         });
-        addNotification({
-          text: "Successfully Published Album",
-          position: "bottom-center",
-          removeAfter: "5000",
-          type: "success",
-        });
+        notyf.success("Successfully Published Album");
         getData();
       })
       .catch((error) => {

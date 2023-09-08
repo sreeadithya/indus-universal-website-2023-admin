@@ -16,6 +16,16 @@
     document.documentElement.classList.remove("dark");
   }
 
+  import { Notyf } from "notyf";
+  import "notyf/notyf.min.css";
+  var notyf = new Notyf({
+    duration: 2000,
+    position: {
+      x: "center",
+      y: "bottom",
+    },
+  });
+
   import { db, storage } from "../firebase";
   import { onMount } from "svelte";
   import { ref, set, get, child, remove } from "firebase/database";
@@ -26,8 +36,6 @@
     deleteObject,
     listAll,
   } from "firebase/storage";
-  import { getNotificationsContext } from "svelte-notifications";
-  const { addNotification } = getNotificationsContext();
   let downloadURL;
 
   let userEmail;
@@ -374,12 +382,7 @@
 
   function publishData(editorData) {
     if (!date) {
-      addNotification({
-        text: "Please add a date for the announcement",
-        position: "bottom-center",
-        removeAfter: "5000",
-        type: "warning",
-      });
+      notyf.error("Please add a date for the announcement");
       return;
     }
 
@@ -392,12 +395,7 @@
       date: date,
     })
       .then(() => {
-        addNotification({
-          text: "Successfully published",
-          position: "bottom-center",
-          removeAfter: "5000",
-          type: "success",
-        });
+        notyf.success("Successfully published");
         titleAnnouncement = undefined;
         editor.clear();
         pinned = false;
@@ -407,11 +405,9 @@
         editor.clear();
       })
       .catch((error) => {
-        addNotification({
-          text: "There was an error publishing the announcement" + { error },
-          position: "bottom-center",
-          type: "error",
-        });
+        notyf.error(
+          `There was an error publishing the announcement" + ${error}`
+        );
       });
 
     // console.log($data);
@@ -434,21 +430,11 @@
 
   function publishEditedData(editorData) {
     if (!editAnnouncementTitle) {
-      addNotification({
-        text: "Please add a title",
-        position: "bottom-center",
-        removeAfter: "5000",
-        type: "warning",
-      });
+      notyf.error("Please add a title");
       return;
     }
     if (!editDate) {
-      addNotification({
-        text: "Please add a date for the announcement",
-        position: "bottom-center",
-        removeAfter: "5000",
-        type: "warning",
-      });
+      notyf.error("Please add a date for the announcement");
       return;
     }
     set(
@@ -461,21 +447,12 @@
       }
     )
       .then(() => {
-        addNotification({
-          text: "Successfully edited",
-          position: "bottom-center",
-          removeAfter: "5000",
-          type: "success",
-        });
+        notyf.success("Successfully edited");
         showEditAnnouncement = "none";
         editor2.clear();
       })
       .catch((error) => {
-        addNotification({
-          text: "There was an error editing the announcement" + { error },
-          position: "bottom-center",
-          type: "error",
-        });
+        notyf.error(`There was an error editing the announcement" + ${error}`);
       });
 
     // console.log($data);
@@ -619,7 +596,7 @@
       class="p-5 bg-white w-[50%] rounded-2xl dark:bg-zinc-900 dark:text-white">
       <div class="flex justify-between pb-5">
         <h2 class="text-lg font-bold">
-          Add New Annoucement {#if titleAnnouncement != "" && showEditorJs == "block"}
+          Add New Announcement {#if titleAnnouncement != "" && showEditorJs == "block"}
             ({titleAnnouncement})
           {/if}
         </h2>
@@ -632,25 +609,14 @@
 
             editor.clear();
           }}>
-          {#if theme == "light"}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              fill="#000000"
-              viewBox="0 0 256 256"
-              ><path
-                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
-          {:else}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              fill="#ffffff"
-              viewBox="0 0 256 256"
-              ><path
-                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
-          {/if}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            class="fill-black dark:fill-white"
+            viewBox="0 0 256 256"
+            ><path
+              d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
         </button>
       </div>
       <div class="flex pb-5 gap-5">
@@ -666,41 +632,25 @@
           style="display: {showTitleAnnouncement};"
           on:click={() => {
             if (titleAnnouncement == "") {
-              addNotification({
-                text: "Please add a title",
-                position: "bottom-center",
-                removeAfter: "5000",
-                type: "warning",
-              });
+              notyf.error("Please add a title");
               return;
             }
             showTitleAnnouncement = "none";
             showEditorJs = "block";
           }}>
-          {#if theme == "light"}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              fill="#ffffff"
-              viewBox="0 0 256 256"
-              ><path
-                d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" /></svg>
-          {:else}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              fill="#000000"
-              viewBox="0 0 256 256"
-              ><path
-                d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" /></svg>
-          {/if}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            class="fill-white"
+            viewBox="0 0 256 256"
+            ><path
+              d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" /></svg>
         </button>
       </div>
 
       <div
-        class="prose rounded-lg border max-w-none overflow-auto max-h-[45vh] w-[100%] mr-0 px-5 py-3 mb-4 border-gray-300 dark:bg-zinc-900 dark:text-white"
+        class="prose rounded-lg border max-w-none overflow-auto max-h-[45vh] w-[100%] mr-0 px-5 py-3 mb-4 border-gray-300 bg-white"
         style="display: {showEditorJs};">
         <div id="newAnnouncementEditor" />
       </div>
@@ -766,7 +716,7 @@
       </div>
 
       <div
-        class="prose rounded-lg border max-w-none w-[100%] overflow-auto max-h-[45vh] mr-0 px-5 py-3 mb-4 border-gray-300 dark:bg-zinc-900 dark:text-white">
+        class="prose rounded-lg border max-w-none w-[100%] overflow-auto max-h-[45vh] mr-0 px-5 py-3 mb-4 border-gray-300 bg-white">
         <div id="editAnnouncementEditor" />
       </div>
 
