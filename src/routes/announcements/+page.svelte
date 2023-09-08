@@ -16,15 +16,15 @@
     document.documentElement.classList.remove("dark");
   }
 
-  import { Notyf } from "notyf";
-  import "notyf/notyf.min.css";
-  var notyf = new Notyf({
-    duration: 2000,
-    position: {
-      x: "center",
-      y: "bottom",
-    },
-  });
+  // import { Notyf } from "notyf";
+  // import "notyf/notyf.min.css";
+  // var notyf = new Notyf({
+  //   duration: 2000,
+  //   position: {
+  //     x: "center",
+  //     y: "bottom",
+  //   },
+  // });
 
   import { db, storage } from "../firebase";
   import { onMount } from "svelte";
@@ -382,7 +382,7 @@
 
   function publishData(editorData) {
     if (!date) {
-      notyf.error("Please add a date for the announcement");
+      // notyf.error("Please add a date for the announcement");
       return;
     }
 
@@ -395,7 +395,7 @@
       date: date,
     })
       .then(() => {
-        notyf.success("Successfully published");
+        // notyf.success("Successfully published");
         titleAnnouncement = undefined;
         editor.clear();
         pinned = false;
@@ -405,9 +405,9 @@
         editor.clear();
       })
       .catch((error) => {
-        notyf.error(
-          `There was an error publishing the announcement" + ${error}`
-        );
+        // notyf.error(
+        //   `There was an error publishing the announcement" + ${error}`
+        // );
       });
 
     // console.log($data);
@@ -430,11 +430,11 @@
 
   function publishEditedData(editorData) {
     if (!editAnnouncementTitle) {
-      notyf.error("Please add a title");
+      // notyf.error("Please add a title");
       return;
     }
     if (!editDate) {
-      notyf.error("Please add a date for the announcement");
+      // notyf.error("Please add a date for the announcement");
       return;
     }
     set(
@@ -447,12 +447,12 @@
       }
     )
       .then(() => {
-        notyf.success("Successfully edited");
+        // notyf.success("Successfully edited");
         showEditAnnouncement = "none";
         editor2.clear();
       })
       .catch((error) => {
-        notyf.error(`There was an error editing the announcement" + ${error}`);
+        // notyf.error(`There was an error editing the announcement" + ${error}`);
       });
 
     // console.log($data);
@@ -632,7 +632,7 @@
           style="display: {showTitleAnnouncement};"
           on:click={() => {
             if (titleAnnouncement == "") {
-              notyf.error("Please add a title");
+              // notyf.error("Please add a title");
               return;
             }
             showTitleAnnouncement = "none";

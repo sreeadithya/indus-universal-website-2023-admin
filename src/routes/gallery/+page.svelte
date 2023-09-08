@@ -23,15 +23,15 @@
   } else {
     document.documentElement.classList.remove("dark");
   }
-  import { Notyf } from "notyf";
-  import "notyf/notyf.min.css";
-  var notyf = new Notyf({
-    duration: 2000,
-    position: {
-      x: "center",
-      y: "bottom",
-    },
-  });
+  // import { Notyf } from "notyf";
+  // import "notyf/notyf.min.css";
+  // var notyf = new Notyf({
+  //   duration: 2000,
+  //   position: {
+  //     x: "center",
+  //     y: "bottom",
+  //   },
+  // });
   import {
     ref,
     getDownloadURL,
@@ -220,7 +220,7 @@
             uploadError = error;
           });
 
-        notyf.success("Successfully Updated Album");
+        // notyf.success("Successfully Updated Album");
 
         editImageLinks = [];
         getData();
@@ -318,7 +318,7 @@
           const fileInput = document.getElementById("fileInput");
           fileInput.value = "";
         });
-        notyf.success("Successfully Published Album");
+        // notyf.success("Successfully Published Album");
         getData();
       })
       .catch((error) => {

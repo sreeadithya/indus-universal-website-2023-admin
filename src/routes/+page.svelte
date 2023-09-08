@@ -4,15 +4,15 @@
 
   import { onAuthStateChanged } from "firebase/auth";
   import { auth, logInButton } from "./firebase";
-  import { Notyf } from "notyf";
-  import "notyf/notyf.min.css";
-  var notyf = new Notyf({
-    duration: 2000,
-    position: {
-      x: "center",
-      y: "bottom",
-    },
-  });
+  // import { Notyf } from "notyf";
+  // import "notyf/notyf.min.css";
+  // var notyf = new Notyf({
+  //   duration: 2000,
+  //   position: {
+  //     x: "center",
+  //     y: "bottom",
+  //   },
+  // });
   let showLoggedIn = "none";
   let logInError;
   let showLoggedOut = "none";
@@ -57,7 +57,7 @@
         <button
           on:click={async () => {
             if ((await logInButton(userEmail, userPassword)) != null) {
-              notyf.error("Wrong email or password");
+              // notyf.error("Wrong email or password");
               userEmail = "";
               userPassword = "";
             }
