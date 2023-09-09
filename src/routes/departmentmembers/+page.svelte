@@ -66,15 +66,15 @@
       lastUpdated = departMentMembers.lastUpdated;
     });
   }
-  // import { Notyf } from "notyf";
-  // import "notyf/notyf.min.css";
-  // var notyf = new Notyf({
-  //   duration: 2000,
-  //   position: {
-  //     x: "center",
-  //     y: "bottom",
-  //   },
-  // });
+  import { Notyf } from "notyf";
+  import "notyf/notyf.min.css";
+  var notyf = new Notyf({
+    duration: 2000,
+    position: {
+      x: "center",
+      y: "bottom",
+    },
+  });
   onMount(() => {
     getData();
   });
