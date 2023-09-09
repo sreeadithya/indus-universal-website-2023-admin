@@ -8,10 +8,8 @@
   import { db } from "../firebase";
   import { onMount } from "svelte";
   import { ref, set, get, child, remove } from "firebase/database";
-  import { getNotificationsContext } from "svelte-notifications";
   import { onAuthStateChanged } from "firebase/auth";
   import { auth, logInButton, logOutButton } from "../firebase";
-  const { addNotification } = getNotificationsContext();
 
   let showLoggedIn = "none";
   let showLoggedOut = "none";
@@ -68,7 +66,15 @@
       lastUpdated = departMentMembers.lastUpdated;
     });
   }
-
+  // import { Notyf } from "notyf";
+  // import "notyf/notyf.min.css";
+  // var notyf = new Notyf({
+  //   duration: 2000,
+  //   position: {
+  //     x: "center",
+  //     y: "bottom",
+  //   },
+  // });
   onMount(() => {
     getData();
   });

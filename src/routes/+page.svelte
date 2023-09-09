@@ -4,10 +4,15 @@
 
   import { onAuthStateChanged } from "firebase/auth";
   import { auth, logInButton } from "./firebase";
-
-  import { getNotificationsContext } from "svelte-notifications";
-  const { addNotification } = getNotificationsContext();
-
+  // import { Notyf } from "notyf";
+  // import "notyf/notyf.min.css";
+  // var notyf = new Notyf({
+  //   duration: 2000,
+  //   position: {
+  //     x: "center",
+  //     y: "bottom",
+  //   },
+  // });
   let showLoggedIn = "none";
   let logInError;
   let showLoggedOut = "none";
@@ -52,12 +57,7 @@
         <button
           on:click={async () => {
             if ((await logInButton(userEmail, userPassword)) != null) {
-              addNotification({
-                text: "Wrong email or password",
-                position: "bottom-center",
-                removeAfter: "5000",
-                type: "error",
-              });
+              // notyf.error("Wrong email or password");
               userEmail = "";
               userPassword = "";
             }

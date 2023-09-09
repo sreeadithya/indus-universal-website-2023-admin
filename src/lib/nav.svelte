@@ -19,6 +19,7 @@
     localStorage.setItem("theme", theme);
     location.reload();
   }
+
   // let theme = localStorage.getItem("theme");
 
   // console.log(theme);
