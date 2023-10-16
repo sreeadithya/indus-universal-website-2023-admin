@@ -686,15 +686,18 @@
               });
           }}>Publish Announcement</button>
       </div>
-      <div class="flex gap-3">
-        <input
-          name=""
-          id=""
-          style="display: {showTitleAnnouncement};"
-          class="py-3 pl-5 flex-grow rounded-lg border col-span-1 border-[#3d3d3d] bg-[#0D0D0D]"
-          placeholder="Title of New Annoucement"
-          bind:value={titleAnnouncement} />
-      </div>
+      <input
+        name=""
+        id=""
+        style="display: {showTitleAnnouncement};"
+        class="py-3 pl-5 w-[100%] rounded-lg border col-span-1 border-[#3d3d3d] bg-[#0D0D0D]"
+        placeholder="Title of New Annoucement"
+        bind:value={titleAnnouncement} />
+      <p
+        class="mt-3 text-sm text-gray-500"
+        style="display: {showTitleAnnouncement};">
+        Make sure the title is concise and is less than 30 words
+      </p>
 
       <div
         class="editorJsEditor prose rounded-lg border max-w-none overflow-auto max-h-[45vh] w-[100%] mr-0 px-5 py-3 bg-white"
@@ -782,7 +785,7 @@
       </div>
 
       <div class="flex flex-row items-center justify-between gap-5 pt-2">
-        You are currently editing: {editAnnouncementTitle}
+        <div>Editing - <b>{editAnnouncementTitle}</b></div>
       </div>
     </dialog>
   </main>

@@ -465,6 +465,12 @@
           class="p-3 rounded-lg hover:bg-[#202020] bg-[#171717] text-white group animate-all duration-200"
           >Update Album
         </button>
+        <div style="display: {showProg};">
+          <img
+            src="/LoadingSpinner.svg"
+            class="mt-5 animate-spin-slow"
+            alt="loading" />
+        </div>
       </div>
       <div>
         <form>
@@ -510,13 +516,6 @@
               <p class="mt-1 text-sm text-gray-500" id="file_input_help">
                 Select more images to add to the album
               </p>
-            </div>
-
-            <div style="display: {showProg};">
-              <img
-                src="/LoadingSpinner.svg"
-                class="mt-5 animate-spin-slow"
-                alt="loading" />
             </div>
 
             <input

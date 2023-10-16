@@ -63,13 +63,13 @@
             <a
               href="/announcements"
               on:click={handlePageChange}
-              class="flex items-center gap-2 bg-[#151515] rounded-xl px-5 py-2">
+              class="flex items-center gap-2 bg-[#171717] rounded-xl px-5 py-2">
               Announcements</a>
           {:else}
             <a
               href="/announcements"
               on:click={handlePageChange}
-              class="flex items-center gap-2 px-5 py-2 rounded-xl">
+              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212] duration-200 transition-colors">
               Announcements</a>
           {/if}
         </li>
@@ -78,13 +78,13 @@
             <a
               href="/gallery"
               on:click={handlePageChange}
-              class="flex items-center gap-2 bg-[#151515] rounded-xl px-5 py-2"
+              class="flex items-center gap-2 bg-[#171717] rounded-xl px-5 py-2"
               >Gallery</a>
           {:else}
             <a
               href="/gallery"
               on:click={handlePageChange}
-              class="flex items-center gap-2 px-5 py-2 rounded-xl">
+              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212] duration-200 transition-colors">
               Gallery</a>
           {/if}
         </li>
@@ -93,13 +93,13 @@
             <a
               href="/departmentmembers"
               on:click={handlePageChange}
-              class="flex items-center gap-2 bg-[#151515] rounded-xl px-5 py-2">
+              class="flex items-center gap-2 bg-[#171717] rounded-xl px-5 py-2">
               Department Members</a>
           {:else}
             <a
               href="/departmentmembers"
               on:click={handlePageChange}
-              class="flex items-center gap-2 px-5 py-2 rounded-xl">
+              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212] duration-200 transition-colors">
               Department Members</a>
           {/if}
         </li>
@@ -108,13 +108,13 @@
             <a
               href="/alumni"
               on:click={handlePageChange}
-              class="flex items-center gap-2 px-5 py-2 bg-[#151515] rounded-xl">
+              class="flex items-center gap-2 px-5 py-2 bg-[#171717] rounded-xl">
               Alumni</a>
           {:else}
             <a
               href="/alumni"
               on:click={handlePageChange}
-              class="flex items-center gap-2 px-5 py-2 rounded-xl">
+              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212] duration-200 transition-colors">
               Alumni</a>
           {/if}
         </li>

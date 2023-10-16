@@ -32,7 +32,7 @@
 
 {#if showLoggedIn}
   <div
-    class="pt-5 px-10 m-5 rounded-xl text-white max-[1000px]:w-[102vw] max-[1000px]:m-0 max-[1000px]:pt-0">
+    class="pt-5 w-[80%] rounded-xl text-white flex h-[90vh] justify-center items-center">
     <p>Select an option on the sidebar</p>
   </div>
 {/if}
