@@ -1,28 +1,19 @@
 <script>
-  let showNewAlbum = "none";
-  let editImagesLocation = [];
-  let imagesLocation = [];
-  let showProg = "none";
-  let imageLinks = [];
-  let prog;
-  let albumName;
-  let albumDate;
-  let uploadError;
-  let editAlbumName;
-  let editAlbumDate;
-  let showEditAlbum = "none";
-  let editImageLinks = [];
-  let showUploadButton = "block";
-  let editImages2;
-  let deletedImages = [];
+  // Importing Firebase Dependencies
+  import { onAuthStateChanged } from "firebase/auth";
+  import { auth } from "../firebase";
+  import {
+    ref,
+    getDownloadURL,
+    uploadBytesResumable,
+    deleteObject,
+    listAll,
+  } from "firebase/storage";
+  import { storage, db } from "../firebase";
+  import { ref as dbref, set, update, get, remove } from "firebase/database";
+  import { onMount } from "svelte";
 
-  let theme = localStorage.getItem("theme");
-
-  if (theme == "dark") {
-    document.documentElement.classList.add("dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-  }
+  // Importing Toast Notifications Package
   import { Notyf } from "notyf";
   import "notyf/notyf.min.css";
   var notyf = new Notyf({
@@ -32,25 +23,24 @@
       y: "bottom",
     },
   });
-  import {
-    ref,
-    getDownloadURL,
-    uploadBytesResumable,
-    deleteObject,
-    listAll,
-  } from "firebase/storage";
-  import { storage, db } from "../firebase";
-  import {
-    ref as dbref,
-    set,
-    push,
-    update,
-    get,
-    remove,
-  } from "firebase/database";
-  import { onMount } from "svelte";
-  let userEmail;
-  let userPassword;
+
+  // Defining Reactive Variables
+  let editImagesLocation = [];
+  let imagesLocation = [];
+  let showProg = "none";
+  let imageLinks = [];
+  let albumName;
+  let albumDate;
+  let uid;
+  let uploadError;
+  let editAlbumName;
+  let editAlbumDate;
+  let editImageLinks = [];
+  let showUploadButton = "block";
+  let deletedImages = [];
+  let showLoggedIn = false;
+
+  // Fetching all the gallery items to display
   function getData() {
     albums = {};
     albumTitles = [];
@@ -60,6 +50,8 @@
       return albums;
     });
   }
+
+  // Setting up a function to edit the gallery items
   function editAlbum(selectedAlbumName) {
     albums = {};
     albumTitles = [];
@@ -68,7 +60,7 @@
       albumTitles = Object.keys(albums);
 
       console.log(albums);
-      showEditAlbum = "flex";
+      document.querySelector("[data-editAlbum]").showModal();
       console.log(albums);
       editAlbumName = selectedAlbumName.replaceAll("_", " ");
       editAlbumDate = albums[selectedAlbumName].albumDate;
@@ -86,6 +78,8 @@
       }
     });
   }
+
+  // Setting up a function to delete the items of the gallery
   function deleteAlbum(nameOfAlbum) {
     listAll(ref(storage, `gallery/${nameOfAlbum}/`))
       .then((res) => {
@@ -93,14 +87,14 @@
           deleteObject(itemRef);
         });
       })
-      .catch((error) => {
-        // Uh-oh, an error occurred!
-      });
+      .catch((error) => {});
     remove(dbref(db, "gallery/" + nameOfAlbum.replaceAll(" ", "_")));
     getData();
   }
 
+  // Setting up a function to edit existing items of the gallery
   function updateAlbum() {
+    // Handling for the proper type of input
     if (!editImagesLocation) {
       set(dbref(db, "gallery/" + editAlbumName.replaceAll(" ", "_")), {
         title: editAlbumName,
@@ -120,12 +114,13 @@
               console.log("deleted" + decodedFileName);
             })
             .catch((error) => {
-              // sht has erroredd sins have been done
+              // TODO: Add notifications for the error handling
             });
         }
         showProg = "none";
         showUploadButton = "block";
-        showEditAlbum = "none";
+        document.querySelector("[data-editAlbum]").close();
+
         editAlbumName = undefined;
         editAlbumDate = undefined;
         editImageLinks = [];
@@ -173,6 +168,7 @@
         uploadPromises.push(uploadPromise);
       }
 
+      // Waiting for previous promises to finish to execute all of them at once
       Promise.all(uploadPromises).then((downloadURLs) => {
         // editAlbum(editAlbumName);
         set(dbref(db, "gallery/" + editAlbumName.replaceAll(" ", "_")), {
@@ -193,12 +189,12 @@
                 console.log("deleted" + decodedFileName);
               })
               .catch((error) => {
-                // sht has erroredd sins have been done
+                // TODO: Add notifications for the error handling
               });
           }
           showProg = "none";
           showUploadButton = "block";
-          showEditAlbum = "none";
+          document.querySelector("[data-editAlbum]").close();
 
           editAlbumName = undefined;
           editAlbumDate = undefined;
@@ -221,32 +217,24 @@
           });
 
         notyf.success("Successfully Updated Album");
-
         editImageLinks = [];
         getData();
       });
     }
   }
 
-  import { onAuthStateChanged } from "firebase/auth";
-  import { auth, logInButton, logOutButton } from "../firebase";
-
-  let showLoggedIn = "none";
-  let showLoggedOut = "none";
-  let uid;
-
+  // Look for change in user authentication state
   onAuthStateChanged(auth, (user) => {
     if (user) {
       uid = user.uid;
-      showLoggedIn = "block";
-      showLoggedOut = "none";
+      showLoggedIn = true;
     } else {
-      showLoggedIn = "none";
-      showLoggedOut = "block";
+      showLoggedIn = false;
       window.location = "/";
     }
   });
 
+  // Removing a value from a given array
   function arrayRemove(array, valueToRemove) {
     const index = array.indexOf(valueToRemove);
     if (index !== -1) {
@@ -257,10 +245,12 @@
   let albums;
   let albumTitles = [];
 
+  // Getting data on page load
   onMount(() => {
     getData();
   });
 
+  // Function to upload images to the gallery
   function uploadImages() {
     if (!imagesLocation) return;
 
@@ -301,6 +291,7 @@
       uploadPromises.push(uploadPromise);
     }
 
+    // Waiting for previous promises to finish so everything can be executed at once
     Promise.all(uploadPromises)
       .then((downloadURLs) => {
         set(dbref(db, "gallery/" + albumName.replaceAll(" ", "_")), {
@@ -310,7 +301,7 @@
         }).then(() => {
           showProg = "none";
           showUploadButton = "block";
-          showNewAlbum = "none";
+          document.querySelector("[data-newAlbum]").close();
           albumName = undefined;
           albumDate = undefined;
           imageLinks = undefined;
@@ -326,6 +317,7 @@
       });
   }
 
+  // Deleting images from the album and database
   function deleteImageFromAlbum(imageUrl) {
     arrayRemove(editImageLinks, imageUrl);
     editImageLinks = editImageLinks;
@@ -346,59 +338,80 @@
   }
 </script>
 
-<main
-  style="display: {showLoggedIn};"
-  class="py-5 px-10 col-span-10 overflow-y-visible m-5 rounded-xl bg-white dark:bg-zinc-900 dark:text-white">
-  <div class="py-5 flex justify-between items-center">
-    <h1 class="text-2xl font-extrabold mb-0">Gallery</h1>
-    <button
-      on:click={() => {
-        if (showNewAlbum == "none") {
-          showNewAlbum = "flex";
-        } else {
-          showNewAlbum = "none";
-        }
-      }}
-      class="px-5 py-2 rounded-lg bg-zinc-950 text-white">New Album</button>
-  </div>
-  <div
-    style="display: {showNewAlbum};"
-    class="absolute bg-[#00000059] top-0 left-0 w-screen h-full flex justify-center items-center">
-    <div
-      class="p-5 bg-white w-[50%] rounded-2xl dark:bg-zinc-900 dark:text-white">
+<!-- ! HTML to display the gallery page -->
+<!-- ? Check for authentication of the user for the display -->
+{#if showLoggedIn}
+  <main
+    class="pt-5 px-10 m-5 w-[70%] rounded-xl text-white max-[1000px]:w-[102vw] max-[1000px]:m-0 max-[1000px]:pt-0">
+    <div class="flex items-center justify-between py-5">
+      <!-- ? Displaying all albums in the gallery -->
+      <p class="text-[30px] text-[#ffffffbb]"><b>All Albums</b></p>
+      <button
+        on:click={() => {
+          document.querySelector("[data-newAlbum]").showModal();
+        }}
+        class=" text-[#ffffffbb] hover:bg-[#151515] p-3 rounded-lg animate-all duration-200"
+        ><svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="#ffffff"
+          viewBox="0 0 256 256"
+          ><path
+            d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z" /></svg
+        ></button>
+    </div>
+
+    <dialog
+      data-newAlbum
+      class="bg-[#0D0D0D] text-white p-5 rounded-lg w-[50%] border-[#151515] border-2">
       <div class="flex justify-between pb-5">
-        <h2 class="text-lg font-bold">Add New Album</h2>
         <button
+          class="p-3 rounded-lg hover:bg-[#151515] text-white group animate-all duration-200"
           on:click={() => {
-            showNewAlbum = "none";
+            document.querySelector("[data-newAlbum]").close();
           }}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="18"
             height="18"
-            class="fill-black dark:fill-white"
+            class="fill-white"
             viewBox="0 0 256 256"
             ><path
               d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
         </button>
+        <div>
+          <button
+            on:click={uploadImages}
+            style="display: {showUploadButton}"
+            class="p-3 rounded-lg hover:bg-[#202020] bg-[#171717] text-white group animate-all duration-200"
+            >Publish Album
+          </button>
+          <div style="display: {showProg};">
+            <img
+              src="/LoadingSpinner.svg"
+              class="mt-5 animate-spin-slow"
+              alt="loading" />
+          </div>
+        </div>
       </div>
       <div>
         <div class="flex flex-row items-center gap-5">
           <input
             placeholder="Name of new album"
-            class="py-3 pl-5 rounded-lg border col-span-1 border-gray-300 w-[50%] dark:bg-zinc-900 dark:text-white"
+            class="py-3 pl-5 rounded-lg col-span-1 w-[50%] bg-[#171717]"
             bind:value={albumName} />
 
           <input
             type="date"
             bind:value={albumDate}
-            class="py-3 px-4 pl-5 rounded-lg border border-gray-300 w-[50%] dark:bg-zinc-900 dark:text-white dark:" />
+            class="py-3 px-4 pl-5 rounded-lg w-[50%] bg-[#171717]" />
         </div>
 
-        <div class="flex justify-between items-end">
+        <div class="flex items-end justify-between">
           <div>
             <div
-              class="relative cursor-pointer overflow-hidden inline-block hover:bg-gray-200 transition-colors py-2 rounded-lg bg-white outline-[0.5px] outline-stone-900 outline text-black mt-5 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600">
+              class="relative cursor-pointer overflow-hidden inline-block hover:bg-[#202020] bg-[#171717] transition-colors py-2 rounded-lg outline-[0.5px] outline-stone-900 outline text-white mt-5">
               <button class="px-5 cursor-pointer">
                 {imagesLocation.length} images selected</button>
               <input
@@ -406,50 +419,31 @@
                 alt=""
                 name=""
                 id="fileInput"
-                class="absolute left-0 top-0 opacity-0 cursor-pointer"
+                class="absolute top-0 left-0 opacity-0 cursor-pointer"
                 bind:files={imagesLocation}
                 multiple
                 accept=".png, .jpg, .jpeg" />
             </div>
 
-            <p
-              class=" text-sm text-gray-500 dark:text-gray-300 mt-1"
-              id="file_input_help">
-              Uploading 10-30 high quality images per album is reccomended in <br />
+            <p class="mt-1 text-sm text-gray-500" id="file_input_help">
+              Uploading 10-30 high quality images per album is recommended in <br />
               order to maintain a good quantity - quality ratio.
             </p>
           </div>
-          <div>
-            <button
-              on:click={uploadImages}
-              style="display: {showUploadButton}"
-              class="px-5 py-2 mt-5 rounded-lg items-center gap-2 bg-zinc-950 text-white"
-              >Publish Album
-            </button>
-            <div style="display: {showProg};">
-              <img
-                src="/LoadingSpinner.svg"
-                class="animate-spin-slow mt-5"
-                alt="loading" />
-            </div>
-          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </dialog>
 
-  <!-- Edit Album -->
+    <!-- Edit Album -->
 
-  <div
-    style="display: {showEditAlbum};"
-    class="absolute bg-[#00000059] top-0 left-0 w-screen h-full flex justify-center items-center">
-    <div
-      class="p-5 bg-white w-[80%] h-auto rounded-2xl dark:bg-zinc-900 dark:text-white">
-      <div class="flex justify-between pb-5">
-        <h2 class="text-lg font-bold">Edit Album</h2>
+    <dialog
+      data-editAlbum
+      class="bg-[#0D0D0D] text-white p-5 rounded-lg w-[80%] border-[#151515] border-2">
+      <div class="flex items-center justify-between pb-5">
         <button
+          class="p-3 rounded-lg hover:bg-[#151515] text-white group animate-all duration-200"
           on:click={() => {
-            showEditAlbum = "none";
+            document.querySelector("[data-editAlbum]").close();
             editImageLinks = [];
             editImagesLocation = [];
           }}>
@@ -457,37 +451,34 @@
             xmlns="http://www.w3.org/2000/svg"
             width="18"
             height="18"
-            class="fill-black dark:fill-white"
+            class="fill-white group-hover:fill-[#ff9c9c] animate-all duration-200"
             viewBox="0 0 256 256"
             ><path
               d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
         </button>
+
+        <div class="pl-[5px]">Editing - <b>{editAlbumName}</b></div>
+
+        <button
+          on:click={updateAlbum}
+          style="display: {showUploadButton}"
+          class="p-3 rounded-lg hover:bg-[#202020] bg-[#171717] text-white group animate-all duration-200"
+          >Update Album
+        </button>
       </div>
       <div>
         <form>
-          <div class="flex flex-row items-center gap-5">
-            <input
-              placeholder={editAlbumName}
-              class="py-3 pl-5 rounded-lg border col-span-1 border-gray-300 w-[50%] dark:bg-zinc-900 dark:text-white"
-              disabled />
-
-            <input
-              type="date"
-              bind:value={editAlbumDate}
-              class="py-3 px-4 pl-5 rounded-lg border border-gray-300 w-[50%] dark:bg-zinc-900 dark:text-white" />
-          </div>
-
           <!-- show images here -->
 
           <div class="overflow-auto max-h-[45vh] mt-3">
             <div class="masonry">
               {#each editImageLinks as item (item)}
-                <div class="masonry-item bg-white shadow rounded-lg relative">
+                <div class="relative bg-white rounded-lg shadow masonry-item">
                   <button
-                    class="absolute bottom-3 right-3 p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] outline-stone-900 bg-[#ffffff8c] backdrop-blur-sm outline"
+                    class="absolute bottom-3 right-3 p-2 group transition-colors rounded-lg outline-[0.5px] outline-stone-900 bg-[#414141cc] backdrop-blur-sm outline"
                     on:click={deleteImageFromAlbum(item)}
                     ><svg
-                      class="fill-black"
+                      class="fill-white duration-200 animate-all group-hover:fill-[#ff9c9c]"
                       xmlns="http://www.w3.org/2000/svg"
                       width="18"
                       height="18"
@@ -500,10 +491,10 @@
               {/each}
             </div>
           </div>
-          <div class="flex justify-between align-bottom items-end">
+          <div class="flex items-end justify-between align-bottom">
             <div>
               <div
-                class="relative cursor-pointer overflow-hidden inline-block hover:bg-gray-200 transition-colors py-2 rounded-lg bg-white outline-[0.5px] outline-stone-900 outline text-black mt-5 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600">
+                class="relative cursor-pointer overflow-hidden inline-block hover:bg-[#202020] transition-colors py-2 rounded-lg bg-[#171717] outline-[0.5px] outline-stone-900 outline text-white mt-5">
                 <button class="px-5 cursor-pointer"
                   >{editImagesLocation.length} images selected</button>
                 <input
@@ -511,90 +502,60 @@
                   alt=""
                   name=""
                   id="editFileInput"
-                  class="absolute left-0 top-0 opacity-0 cursor-pointer"
+                  class="absolute top-0 left-0 opacity-0 cursor-pointer"
                   bind:files={editImagesLocation}
                   multiple
                   accept=".png, .jpg, .jpeg" />
               </div>
-              <p
-                class=" text-sm text-gray-500 dark:text-gray-300 mt-1"
-                id="file_input_help">
+              <p class="mt-1 text-sm text-gray-500" id="file_input_help">
                 Select more images to add to the album
               </p>
             </div>
-            <button
-              on:click={updateAlbum}
-              style="display: {showUploadButton}"
-              class="px-5 py-2 mt-5 h-min rounded-lg items-center gap-2 bg-zinc-950 text-white"
-              >Update Album
-            </button>
+
             <div style="display: {showProg};">
               <img
                 src="/LoadingSpinner.svg"
-                class="animate-spin-slow mt-5"
+                class="mt-5 animate-spin-slow"
                 alt="loading" />
             </div>
+
+            <input
+              type="date"
+              class=" p-3 rounded-lg bg-[#171717]"
+              name=""
+              id="date"
+              bind:value={editAlbumDate} />
           </div>
         </form>
       </div>
-    </div>
-  </div>
-  <div>
-    <div class="h-[83.2vh] overflow-auto">
-      <table class="table-auto min-w-full text-left text-sm font-light mt-3">
-        <thead>
-          <tr class="border-b">
-            <th scope="col" class="px-6 py-4">#</th>
-            <th scope="col" class="px-6 py-4">Name of the Album</th>
-            <th scope="col" class="px-6 py-4">Date</th>
-            <th scope="col" class="px-6 py-4">Options</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each albumTitles as i, y}
-            <tr class="border-b-1">
-              <td class="whitespace-nowrap px-6 py-4">{y + 1}</td>
-              <td class="whitespace-nowrap px-6 py-4"
-                >{i.replaceAll("_", " ")}</td>
-              <td class="whitespace-nowrap px-6 py-4">{albums[i].albumDate}</td>
-              <td class="whitespace-nowrap px-6 py-4">
-                <div class="flex flex-row gap-4">
-                  <button
-                    class="px-5 hover:bg-gray-200 transition-colors py-2 rounded-lg outline-[0.5px] border border-stone-900 text-black dark:border-white dark:text-white dark:hover:bg-zinc-800"
-                    on:click={editAlbum(i)}>Edit</button>
-                  <button
-                    class="p-2 hover:bg-[#ff9c9c] transition-colors rounded-lg outline-[0.5px] border border-stone-900 dark:border-white dark:hover:bg-[#FF8989]"
-                    on:click={deleteAlbum(i)}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18"
-                      height="18"
-                      class="fill-black dark:fill-white"
-                      viewBox="0 0 256 256"
-                      ><path
-                        d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z" /></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
+    </dialog>
+    <div>
+      <div class="h-[83.2vh] overflow-auto">
+        <div class="py-5 masonry-main">
+          {#each albumTitles as i}
+            <div class="relative masonry-item">
+              <img
+                src={albums[i].imageLinks[
+                  Math.floor(Math.random() * (albums[i].imageLinks.length - 0))
+                ]}
+                class="rounded-md w-max h-max"
+                alt="" />
+              <div class="flex justify-between w-[100%] pt-2">
+                <p class="w-[50%]">{i.replaceAll("_", " ")}</p>
+
+                <p class="text-[#ffffff80]">{albums[i].albumDate}</p>
+              </div>
+
+              <div class="flex flex-row gap-5 pt-1">
+                <button on:click={editAlbum(i)}><u>Edit</u> </button>
+                <button on:click={deleteAlbum(i)}><u>Delete</u> </button>
+              </div>
+            </div>
           {/each}
-        </tbody>
-      </table>
+        </div>
+      </div>
     </div>
-  </div>
-</main>
-{#if theme == "light"}
-  <style>
-    input {
-      color-scheme: light;
-    }
-  </style>
-{:else}
-  <style>
-    input {
-      color-scheme: dark;
-    }
-  </style>
+  </main>
 {/if}
 
 <style>
@@ -603,8 +564,40 @@
     column-gap: 1rem;
   }
 
+  .masonry-main {
+    column-count: 3;
+    column-gap: 2rem;
+  }
+
   .masonry-item {
     break-inside: avoid;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.459);
+    backdrop-filter: blur(5px);
+  }
+
+  .checkBoxContainer input {
+    display: none;
+    cursor: pointer;
+  }
+
+  .checkBoxContainer .checkBoxIndicator {
+    transform: scale(0.8);
+    display: block;
+    float: left;
+    margin-right: 5px;
+    cursor: pointer;
+  }
+  .checkBoxContainer input:checked ~ .checkBoxIndicator {
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg4IiBoZWlnaHQ9IjM4OCIgdmlld0JveD0iMCAwIDM4OCAzODgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0zNDQgMTE0LjMwNEwzMDYuNzQyIDc3TDE0Ny41NDggMjM2LjMzMUw4MS4yNTgxIDE3MC4wMTlMNDQgMjA3LjMyM0wxNDcuNTQ4IDMxMUwzNDQgMTE0LjMwNFoiIGZpbGw9IiNCMEIwQjAiLz4KPC9zdmc+Cg==)
+      center/cover no-repeat;
+    color: #121212;
+  }
+
+  * {
+    color-scheme: dark;
   }
 </style>

@@ -13,33 +13,33 @@
       y: "bottom",
     },
   });
-  let showLoggedIn = "none";
-  let logInError;
-  let showLoggedOut = "none";
+  let showLoggedIn = false;
+  let showLoggedOut = false;
   let uid;
   onAuthStateChanged(auth, (user) => {
     if (user) {
       uid = user.uid;
-      showLoggedIn = "flex";
-      showLoggedOut = "none";
+      showLoggedIn = true;
+      showLoggedOut = false;
       console.log(user);
     } else {
-      showLoggedIn = "none";
-      showLoggedOut = "block";
+      showLoggedIn = false;
+      showLoggedOut = true;
       console.log(user);
     }
   });
 </script>
 
-<div
-  style="display: {showLoggedIn}"
-  class="p-5 pl-10 pr-10 col-span-10 h-[95.8vh] flex-col justify-center items-center text-center m-5 bg-white rounded-xl">
-  <p>select an option on the sidebar to begin</p>
-</div>
-<div style="display: {showLoggedOut}">
+{#if showLoggedIn}
   <div
-    class="w-screen h-screen flex flex-col items-center justify-center bg-white">
-    <div class="flex flex-col p-8 bg-white rounded-lg">
+    class="pt-5 px-10 m-5 rounded-xl text-white max-[1000px]:w-[102vw] max-[1000px]:m-0 max-[1000px]:pt-0">
+    <p>Select an option on the sidebar</p>
+  </div>
+{/if}
+{#if showLoggedOut}
+  <div
+    class="flex flex-col items-center justify-center w-screen h-screen bg-[#0D0D0D] text-white">
+    <div class="flex flex-col p-8 bg-[#0D0D0D] rounded-lg">
       <img src="./logo.svg" alt="" class="h-[50px] mb-5" />
       <form action="" class="flex flex-col content-stretch">
         <input
@@ -47,13 +47,13 @@
           placeholder="email"
           bind:value={userEmail}
           name=""
-          class="py-3 px-5 rounded-lg border mb-2 border-gray-300" />
+          class="px-5 py-3 mb-2 rounded-lg bg-[#0d0d0d] border-gray-300 border-[0.4px]" />
         <input
           type="password"
           placeholder="password"
           bind:value={userPassword}
           name=""
-          class="py-3 px-5 rounded-lg border mb-2 border-gray-300" />
+          class="px-5 py-3 mb-2 rounded-lg bg-[#0d0d0d] border-gray-300 border-[0.4px]" />
         <button
           on:click={async () => {
             if ((await logInButton(userEmail, userPassword)) != null) {
@@ -67,8 +67,9 @@
             //   userPassword = "";
             // }
           }}
-          class="bg-neutral-950 text-white px-5 py-2 rounded-lg">Log In</button>
+          class="p-3 rounded-lg hover:bg-[#202020] bg-[#171717] text-white group animate-all duration-200"
+          >Log In</button>
       </form>
     </div>
   </div>
-</div>
+{/if}
