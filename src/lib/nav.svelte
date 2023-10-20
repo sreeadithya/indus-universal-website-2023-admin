@@ -47,10 +47,12 @@
 
 <!-- ! HTML for the main page -->
 {#if showLoggedIn}
-  <main class="h-full p-10 max-[1000px]:flex max-[1000px]:flex-col-reverse">
+  <main
+    class="h-full w-[20%] p-10 max-[1000px]:flex max-[1000px]:flex-col-reverse">
     <div
-      class=" text-[#ffffff80] absolute bottom-12 max-[1000px]:static max-[1000px]:flex max-[1000px]:justify-between">
-      <p>IUS -> Web Admin Panel</p>
+      class=" text-[#ffffff] absolute bottom-12 max-[1000px]:static max-[1000px]:flex max-[1000px]:justify-between p-5">
+      <p class="text-[#ffffff80]">IUS -> Web Admin Panel</p>
+      <p class="text-[#ffffff80]"><sup>ctrl + k for quick menu</sup></p>
       <button
         on:click={logOutButton}
         class="hover:text-[#ff8989] transition-colors">Log Out</button>
@@ -69,7 +71,7 @@
             <a
               href="/announcements"
               on:click={handlePageChange}
-              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212] duration-200 transition-colors">
+              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212]">
               Announcements</a>
           {/if}
         </li>
@@ -84,7 +86,7 @@
             <a
               href="/gallery"
               on:click={handlePageChange}
-              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212] duration-200 transition-colors">
+              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212]">
               Gallery</a>
           {/if}
         </li>
@@ -99,7 +101,7 @@
             <a
               href="/departmentmembers"
               on:click={handlePageChange}
-              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212] duration-200 transition-colors">
+              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212]">
               Department Members</a>
           {/if}
         </li>
@@ -114,7 +116,7 @@
             <a
               href="/alumni"
               on:click={handlePageChange}
-              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212] duration-200 transition-colors">
+              class="flex items-center gap-2 px-5 py-2 rounded-xl hover:bg-[#121212]">
               Alumni</a>
           {/if}
         </li>

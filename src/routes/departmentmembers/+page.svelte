@@ -107,7 +107,7 @@
 
 <!-- ! HTML for the department members page -->
 <main
-  class="pt-5 px-10 m-5 w-[70%] rounded-xl text-white max-[1000px]:w-[102vw] max-[1000px]:m-0 max-[1000px]:pt-0">
+  class="pt-5 px-10 m-5 w-[100%] rounded-xl text-white max-[1000px]:w-[102vw] max-[1000px]:m-0 max-[1000px]:pt-0">
   <div class="flex items-center justify-between py-5">
     <div class="flex flex-col">
       <p class="opacity-50" id="file_input_help">

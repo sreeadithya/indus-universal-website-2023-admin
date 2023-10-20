@@ -32,6 +32,7 @@
     "@editorjs/underline": "^1.1.0",
     "@tailwindcss/typography": "^0.5.9",
     "firebase": "^10.3.0",
+    "ninja-keys": "^1.2.2",
     "notyf": "^3.10.0"
   }
 }

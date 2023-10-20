@@ -38,7 +38,7 @@
   let editPinned;
   let editDate;
   let editAnnouncementTitle;
-  let editThumbnail;
+  let editThumbnailLocation;
   let thumbnailLocation;
   let announcements;
   let announcementsTitles = [];
@@ -52,6 +52,7 @@
   let showEditorJs = "none";
   let date = null;
   let titleAnnouncement = "";
+  let uid;
 
   // Getting data on page load
   onMount(() => {
@@ -442,6 +443,7 @@
 
   function editAnnouncement(title) {
     // Fetching announcement to edit
+
     get(ref(db, "announcements/" + title.replaceAll(" ", "_"))).then(
       (snapshot) => {
         currentAnnouncement = snapshot.val();
@@ -450,7 +452,7 @@
         editAnnouncementTitle = currentAnnouncement.title;
         editPinned = currentAnnouncement.pinned;
         editDate = currentAnnouncement.date;
-        editThumbnail = currentAnnouncement.thumbnail;
+        editThumbnailLocation = currentAnnouncement.thumbnail;
         console.log(currentAnnouncement.data);
       }
     );
@@ -466,29 +468,63 @@
       notyf.error("Please add a date for the announcement");
       return;
     }
-    // Code to change the spaces to underscores (_) to prevent errors while posting to the database
-    set(
-      ref(db, "announcements/" + editAnnouncementTitle.replaceAll(" ", "_")),
-      {
-        title: editAnnouncementTitle,
-        data: editorData,
-        pinned: editPinned,
-        thumbnail: editThumbnail,
-        date: editDate,
-      }
-    )
-      .then(() => {
-        notyf.success("Successfully edited");
-        document.querySelector("[data-editAnnouncement]").close();
 
-        editor2.clear();
-      })
-      .catch((error) => {
-        notyf.error(`There was an error editing the announcement" + ${error}`);
-      });
+    if (!editThumbnailLocation) return;
+
+    let storeRef = storageRef(
+      storage,
+      `announcements/${titleAnnouncement.replaceAll(" ", "_")}/${
+        editThumbnailLocation[0].name
+      }`
+    );
+    const uploadTask = uploadBytesResumable(storeRef, editThumbnailLocation[0]);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {},
+      (error) => {
+        reject(error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref)
+          .then((downloadURL) => {
+            // Create a promise to resolve with the download URL when the upload is complete
+            // Code to change the spaces to underscores (_) to prevent errors while posting to the database
+            set(
+              ref(
+                db,
+                "announcements/" + editAnnouncementTitle.replaceAll(" ", "_")
+              ),
+              {
+                title: editAnnouncementTitle,
+                data: editorData,
+                pinned: editPinned,
+                thumbnail: downloadURL,
+                date: editDate,
+              }
+            )
+              .then(() => {
+                notyf.success("Successfully edited");
+                document.querySelector("[data-editAnnouncement]").close();
+
+                editor2.clear();
+
+                setTimeout(getData, 100);
+              })
+              .catch((error) => {
+                notyf.error(
+                  `There was an error editing the announcement" + ${error}`
+                );
+              });
+          })
+          .catch((error) => {
+            reject(error);
+            uploadError = error;
+          });
+      }
+    );
 
     // Fetching new announcements after successfully editing the announcements
-    setTimeout(getData, 100);
   }
 
   function deleteAnnouncement(title) {
@@ -501,7 +537,7 @@
 {#if showLoggedIn}
   <!-- ? Checking for authentication of the user-->
   <main
-    class="pt-5 px-10 m-5 w-[70%] rounded-xl text-white max-[1000px]:w-[102vw] max-[1000px]:m-0 max-[1000px]:pt-0">
+    class="pt-5 px-10 m-5 w-[100%] rounded-xl text-white max-[1000px]:w-[102vw] max-[1000px]:m-0 max-[1000px]:pt-0">
     <div
       class="h-[90vh] overflow-auto max-[1000px]:h-max max-[1000px]:overflow-scroll">
       <div class="flex justify-between pt-5">
@@ -543,11 +579,11 @@
 
             <div class="flex flex-row gap-5 pt-1">
               <button on:click={editAnnouncement(pinnedAnnouncements[i].title)}
-                ><u>Edit</u>
+                ><u class="hover:text-[#ffffffb2] duration-200">Edit</u>
               </button>
               <button
                 on:click={deleteAnnouncement(pinnedAnnouncements[i].title)}
-                ><u>Delete</u>
+                ><u class="hover:text-[#ff9c9c] duration-200">Delete</u>
               </button>
             </div>
           </div>
@@ -741,13 +777,7 @@
         </div>
         <div
           class="relative cursor-pointer overflow-hidden inline-block bg-[#171717] hover:bg-[#202020] p-3 rounded-lg animate-all duration-200">
-          <button class="cursor-pointer">
-            {#if !thumbnailLocation}
-              Select Updated Thumbnail
-            {:else}
-              Updated Thumbnail Selected
-            {/if}
-          </button>
+          <button class="cursor-pointer"> Update Thumbnail </button>
 
           <input
             type="file"
@@ -755,7 +785,7 @@
             name=""
             id="fileInput"
             class="absolute left-0 top-0 opacity-0 !cursor-pointer"
-            bind:files={thumbnailLocation}
+            bind:files={editThumbnailLocation}
             accept=".png, .jpg, .jpeg" />
         </div>
         <input
@@ -793,8 +823,23 @@
 
 <style>
   dialog::backdrop {
-    background-color: rgba(0, 0, 0, 0.459);
+    background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(5px);
+    opacity: 5;
+    animation: dialogFadeIn 0.3s;
+  }
+
+  dialog[open] {
+    animation: dialogFadeIn 0.3s;
+    opacity: 1;
+  }
+  @keyframes dialogFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   .checkBoxContainer input {
@@ -817,5 +862,53 @@
 
   * {
     color-scheme: dark;
+  }
+
+  .ce-block--selected .ce-block__content,
+  .ce-inline-toolbar,
+  .codex-editor--narrow .ce-toolbox,
+  .ce-conversion-toolbar,
+  .ce-settings,
+  .ce-settings__button,
+  .ce-toolbar__settings-btn,
+  .cdx-button,
+  .ce-popover,
+  .ce-toolbar__plus:hover {
+    background: #007991;
+    color: inherit;
+  }
+
+  .ce-inline-tool,
+  .ce-conversion-toolbar__label,
+  .ce-toolbox__button,
+  .cdx-settings-button,
+  .ce-toolbar__plus {
+    color: inherit;
+  }
+
+  ::selection {
+    background: #439a86;
+  }
+
+  .cdx-settings-button:hover,
+  .ce-settings__button:hover,
+  .ce-toolbox__button--active,
+  .ce-toolbox__button:hover,
+  .cdx-button:hover,
+  .ce-inline-toolbar__dropdown:hover,
+  .ce-inline-tool:hover,
+  .ce-popover__item:hover,
+  .ce-toolbar__settings-btn:hover {
+    background-color: #439a86;
+    color: inherit;
+  }
+
+  .cdx-notify--error {
+    background: #fb5d5d !important;
+  }
+
+  .cdx-notify__cross::after,
+  .cdx-notify__cross::before {
+    background: white;
   }
 </style>
