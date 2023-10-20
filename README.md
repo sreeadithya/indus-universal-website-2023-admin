@@ -19,8 +19,8 @@ Admin dashboard for Indus Universal School's 2023 website redesign project, unde
 
 ### Libraries
 
-| [**EditorJS**](https://editorjs.io/) | [**Notyf**](https://github.com/caroso1222/notyf) |
-| ------------------------------------ | ------------------------------------------------ |
+| [**EditorJS**](https://editorjs.io/) | [**Notyf**](https://github.com/caroso1222/notyf) | [**Browser Image Compression**](https://github.com/Donaldcwl/browser-image-compression) |
+| ------------------------------------ | ------------------------------------------------ |------------------------------------------------ |
 
 ### Misc Tools
 
