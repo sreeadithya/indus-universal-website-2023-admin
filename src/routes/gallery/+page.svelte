@@ -40,6 +40,9 @@
   let deletedImages = [];
   let showLoggedIn = false;
 
+  // Client Side Compression Lib
+  import imageCompression from "browser-image-compression";
+
   // Fetching all the gallery items to display
   function getData() {
     albums = {};
@@ -93,7 +96,7 @@
   }
 
   // Setting up a function to edit existing items of the gallery
-  function updateAlbum() {
+  async function updateAlbum() {
     // Handling for the proper type of input
     if (!editImagesLocation) {
       set(dbref(db, "gallery/" + editAlbumName.replaceAll(" ", "_")), {
@@ -132,40 +135,59 @@
       const uploadPromises = [];
 
       for (let i = 0; i < editImagesLocation.length; i++) {
-        const storageRef = ref(
-          storage,
-          `gallery/${editAlbumName}/${editImagesLocation[i].name}`
-        );
-        const uploadTask = uploadBytesResumable(
-          storageRef,
-          editImagesLocation[i]
-        );
+        const imageFile = editImagesLocation[i];
+        console.log("originalFile instanceof Blob", imageFile instanceof Blob);
+        console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
 
-        const uploadPromise = new Promise((resolve, reject) => {
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-              showProg = "block";
-              showUploadButton = "none";
-            },
-            (error) => {
-              reject(error);
-              uploadError = error;
-            },
-            () => {
-              getDownloadURL(uploadTask.snapshot.ref)
-                .then((downloadURL) => {
-                  editImageLinks = [...editImageLinks, downloadURL];
-                  resolve(downloadURL);
-                })
-                .catch((error) => {
-                  reject(error);
-                  uploadError = error;
-                });
-            }
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+        };
+        try {
+          const compressedFile = await imageCompression(imageFile, options);
+          console.log(
+            "compressedFile instanceof Blob",
+            compressedFile instanceof Blob
           );
-        });
-        uploadPromises.push(uploadPromise);
+          console.log(
+            `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
+          );
+
+          const storageRef = ref(
+            storage,
+            `gallery/${editAlbumName}/${editImagesLocation[i].name}`
+          );
+          const uploadTask = uploadBytesResumable(storageRef, compressedFile);
+
+          const uploadPromise = new Promise((resolve, reject) => {
+            uploadTask.on(
+              "state_changed",
+              (snapshot) => {
+                showProg = "block";
+                showUploadButton = "none";
+              },
+              (error) => {
+                reject(error);
+                uploadError = error;
+              },
+              () => {
+                getDownloadURL(uploadTask.snapshot.ref)
+                  .then((downloadURL) => {
+                    editImageLinks = [...editImageLinks, downloadURL];
+                    resolve(downloadURL);
+                  })
+                  .catch((error) => {
+                    reject(error);
+                    uploadError = error;
+                  });
+              }
+            );
+          });
+          uploadPromises.push(uploadPromise);
+        } catch (error) {
+          console.log(error);
+        }
       }
 
       // Waiting for previous promises to finish to execute all of them at once
@@ -251,44 +273,65 @@
   });
 
   // Function to upload images to the gallery
-  function uploadImages() {
+  async function uploadImages() {
     if (!imagesLocation) return;
 
     const uploadPromises = [];
 
     for (let i = 0; i < imagesLocation.length; i++) {
-      const storageRef = ref(
-        storage,
-        `gallery/${albumName}/${imagesLocation[i].name}`
-      );
-      const uploadTask = uploadBytesResumable(storageRef, imagesLocation[i]);
+      const imageFile = imagesLocation[i];
+      console.log("originalFile instanceof Blob", imageFile instanceof Blob);
+      console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
 
-      const uploadPromise = new Promise((resolve, reject) => {
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            showProg = "block";
-            showUploadButton = "none";
-          },
-          (error) => {
-            reject(error);
-            uploadError = error;
-          },
-          () => {
-            getDownloadURL(uploadTask.snapshot.ref)
-              .then((downloadURL) => {
-                imageLinks = [...imageLinks, downloadURL];
-                resolve(downloadURL);
-              })
-              .catch((error) => {
-                reject(error);
-                uploadError = error;
-              });
-          }
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+      try {
+        const compressedFile = await imageCompression(imageFile, options);
+        console.log(
+          "compressedFile instanceof Blob",
+          compressedFile instanceof Blob
         );
-      });
+        console.log(
+          `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
+        );
 
-      uploadPromises.push(uploadPromise);
+        const storageRef = ref(
+          storage,
+          `gallery/${albumName}/${imagesLocation[i].name}`
+        );
+        const uploadTask = uploadBytesResumable(storageRef, compressedFile);
+
+        const uploadPromise = new Promise((resolve, reject) => {
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              showProg = "block";
+              showUploadButton = "none";
+            },
+            (error) => {
+              reject(error);
+              uploadError = error;
+            },
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref)
+                .then((downloadURL) => {
+                  imageLinks = [...imageLinks, downloadURL];
+                  resolve(downloadURL);
+                })
+                .catch((error) => {
+                  reject(error);
+                  uploadError = error;
+                });
+            }
+          );
+        });
+        uploadPromises.push(uploadPromise);
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     // Waiting for previous promises to finish so everything can be executed at once
@@ -546,8 +589,16 @@
               </div>
 
               <div class="flex flex-row gap-5 pt-1">
-                <button on:click={editAlbum(i)}><u>Edit</u> </button>
-                <button on:click={deleteAlbum(i)}><u>Delete</u> </button>
+                <button
+                  on:click={editAlbum(i)}
+                  class="hover:text-[#ffffffb2] duration-200"
+                  ><u>Edit</u>
+                </button>
+                <button
+                  on:click={deleteAlbum(i)}
+                  class="hover:text-[#ff9c9c] duration-200"
+                  ><u>Delete</u>
+                </button>
               </div>
             </div>
           {/each}

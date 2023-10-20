@@ -33,6 +33,9 @@
     },
   });
 
+  // Client Side Compression Lib
+  import imageCompression from "browser-image-compression";
+
   // Defining Reactive Variables
   let currentAnnouncement;
   let editPinned;
@@ -370,7 +373,7 @@
     holder: "editAnnouncementEditor",
   });
 
-  function publishData(editorData) {
+  async function publishData(editorData) {
     // Error handling before publishing of the announcement
     if (!date) {
       // Checking for date
@@ -383,62 +386,84 @@
 
     if (!thumbnailLocation) return;
 
-    let storeRef = storageRef(
-      storage,
-      `announcements/${titleAnnouncement.replaceAll(" ", "_")}/${
-        thumbnailLocation[0].name
-      }`
-    );
-    const uploadTask = uploadBytesResumable(storeRef, thumbnailLocation[0]);
+    const imageFile = thumbnailLocation[0];
+    console.log("originalFile instanceof Blob", imageFile instanceof Blob);
+    console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {},
-      (error) => {
-        reject(error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref)
-          .then((downloadURL) => {
-            // Create a promise to resolve with the download URL when the upload is complete
-            set(
-              ref(
-                db,
-                "announcements/" + titleAnnouncement.replaceAll(" ", "_")
-              ),
-              {
-                title: titleAnnouncement,
-                data: editorData,
-                pinned: pinned,
-                date: date,
-                thumbnail: downloadURL,
-              }
-            )
-              .then(() => {
-                notyf.success("Successfully published");
-                titleAnnouncement = undefined;
-                thumbnailLocation = undefined;
-                editor.clear();
-                pinned = false;
-                date = undefined;
-                showEditorJs = "none";
-                document.querySelector("[data-newAnnouncement]").close();
-              })
-              .catch((error) => {
-                notyf.error(
-                  `There was an error publishing the announcement" + ${error}`
-                );
-              });
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+    try {
+      const compressedFile = await imageCompression(imageFile, options);
+      console.log(
+        "compressedFile instanceof Blob",
+        compressedFile instanceof Blob
+      );
+      console.log(
+        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
+      );
 
-            // Fetching new data after publishing the announcements
-            setTimeout(getData, 100);
-          })
-          .catch((error) => {
-            reject(error);
-            uploadError = error;
-          });
-      }
-    );
+      let storeRef = storageRef(
+        storage,
+        `announcements/${titleAnnouncement.replaceAll(" ", "_")}/${
+          thumbnailLocation[0].name
+        }`
+      );
+      const uploadTask = uploadBytesResumable(storeRef, compressedFile);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {},
+        (error) => {
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref)
+            .then((downloadURL) => {
+              // Create a promise to resolve with the download URL when the upload is complete
+              set(
+                ref(
+                  db,
+                  "announcements/" + titleAnnouncement.replaceAll(" ", "_")
+                ),
+                {
+                  title: titleAnnouncement,
+                  data: editorData,
+                  pinned: pinned,
+                  date: date,
+                  thumbnail: downloadURL,
+                }
+              )
+                .then(() => {
+                  notyf.success("Successfully published");
+                  titleAnnouncement = undefined;
+                  thumbnailLocation = undefined;
+                  editor.clear();
+                  pinned = false;
+                  date = undefined;
+                  showEditorJs = "none";
+                  document.querySelector("[data-newAnnouncement]").close();
+                })
+                .catch((error) => {
+                  notyf.error(
+                    `There was an error publishing the announcement" + ${error}`
+                  );
+                });
+
+              // Fetching new data after publishing the announcements
+              setTimeout(getData, 100);
+            })
+            .catch((error) => {
+              reject(error);
+              uploadError = error;
+            });
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   function editAnnouncement(title) {
@@ -458,7 +483,7 @@
     );
   }
 
-  function publishEditedData(editorData) {
+  async function publishEditedData(editorData) {
     // Type checkers for titles, dates, etc
     if (!editAnnouncementTitle) {
       notyf.error("Please add a title");
@@ -471,58 +496,80 @@
 
     if (!editThumbnailLocation) return;
 
-    let storeRef = storageRef(
-      storage,
-      `announcements/${titleAnnouncement.replaceAll(" ", "_")}/${
-        editThumbnailLocation[0].name
-      }`
-    );
-    const uploadTask = uploadBytesResumable(storeRef, editThumbnailLocation[0]);
+    const imageFile = editThumbnailLocation[0];
+    console.log("originalFile instanceof Blob", imageFile instanceof Blob);
+    console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {},
-      (error) => {
-        reject(error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref)
-          .then((downloadURL) => {
-            // Create a promise to resolve with the download URL when the upload is complete
-            // Code to change the spaces to underscores (_) to prevent errors while posting to the database
-            set(
-              ref(
-                db,
-                "announcements/" + editAnnouncementTitle.replaceAll(" ", "_")
-              ),
-              {
-                title: editAnnouncementTitle,
-                data: editorData,
-                pinned: editPinned,
-                thumbnail: downloadURL,
-                date: editDate,
-              }
-            )
-              .then(() => {
-                notyf.success("Successfully edited");
-                document.querySelector("[data-editAnnouncement]").close();
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+    try {
+      const compressedFile = await imageCompression(imageFile, options);
+      console.log(
+        "compressedFile instanceof Blob",
+        compressedFile instanceof Blob
+      );
+      console.log(
+        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
+      );
 
-                editor2.clear();
+      let storeRef = storageRef(
+        storage,
+        `announcements/${titleAnnouncement.replaceAll(" ", "_")}/${
+          editThumbnailLocation[0].name
+        }`
+      );
+      const uploadTask = uploadBytesResumable(storeRef, compressedFile);
 
-                setTimeout(getData, 100);
-              })
-              .catch((error) => {
-                notyf.error(
-                  `There was an error editing the announcement" + ${error}`
-                );
-              });
-          })
-          .catch((error) => {
-            reject(error);
-            uploadError = error;
-          });
-      }
-    );
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {},
+        (error) => {
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref)
+            .then((downloadURL) => {
+              // Create a promise to resolve with the download URL when the upload is complete
+              // Code to change the spaces to underscores (_) to prevent errors while posting to the database
+              set(
+                ref(
+                  db,
+                  "announcements/" + editAnnouncementTitle.replaceAll(" ", "_")
+                ),
+                {
+                  title: editAnnouncementTitle,
+                  data: editorData,
+                  pinned: editPinned,
+                  thumbnail: downloadURL,
+                  date: editDate,
+                }
+              )
+                .then(() => {
+                  notyf.success("Successfully edited");
+                  document.querySelector("[data-editAnnouncement]").close();
+
+                  editor2.clear();
+
+                  setTimeout(getData, 100);
+                })
+                .catch((error) => {
+                  notyf.error(
+                    `There was an error editing the announcement" + ${error}`
+                  );
+                });
+            })
+            .catch((error) => {
+              reject(error);
+              uploadError = error;
+            });
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
 
     // Fetching new announcements after successfully editing the announcements
   }
