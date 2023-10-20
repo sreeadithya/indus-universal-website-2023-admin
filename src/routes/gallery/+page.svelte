@@ -39,6 +39,8 @@
   let showUploadButton = "block";
   let deletedImages = [];
   let showLoggedIn = false;
+  let currentGalleryForDeletion = "";
+  let albumValue;
 
   // Client Side Compression Lib
   import imageCompression from "browser-image-compression";
@@ -49,7 +51,46 @@
     albumTitles = [];
     get(dbref(db, "gallery/")).then((snapshot) => {
       albums = snapshot.val();
-      albumTitles = Object.keys(albums);
+
+      let datesContainer = [];
+
+      albumValue = Object.values(albums);
+
+      for (let i = 0; i < albumValue.length; i++) {
+        let date = albumValue[i].albumDate;
+
+        let dateParts = date.split("-");
+        let year = parseInt(dateParts[0]);
+        let month = parseInt(dateParts[1]) - 1;
+        let day = parseInt(dateParts[2]);
+
+        let dateObject = new Date(year, month, day);
+        let dateNumber = dateObject.getTime();
+        console.log(dateNumber);
+
+        datesContainer.push([dateNumber, i]);
+      }
+
+      datesContainer.sort();
+
+      console.log(datesContainer);
+
+      let sortedAlbums = [];
+
+      for (let j = 0; j < datesContainer.length; j++) {
+        console.log(datesContainer[j][0]);
+        sortedAlbums.push(Object.values(albums)[datesContainer[j][1]]);
+      }
+
+      console.log(sortedAlbums);
+
+      sortedAlbums.reverse();
+
+      albumTitles = [];
+
+      for (let i = 0; i < sortedAlbums.length; i++) {
+        albumTitles.push(sortedAlbums[i]["title"].replaceAll(" ", "_"));
+      }
       return albums;
     });
   }
@@ -84,15 +125,9 @@
 
   // Setting up a function to delete the items of the gallery
   function deleteAlbum(nameOfAlbum) {
-    listAll(ref(storage, `gallery/${nameOfAlbum}/`))
-      .then((res) => {
-        res.items.forEach((itemRef) => {
-          deleteObject(itemRef);
-        });
-      })
-      .catch((error) => {});
-    remove(dbref(db, "gallery/" + nameOfAlbum.replaceAll(" ", "_")));
-    getData();
+    currentGalleryForDeletion = nameOfAlbum;
+
+    document.querySelector("[data-confirmDeleteModal]").showModal();
   }
 
   // Setting up a function to edit existing items of the gallery
@@ -405,6 +440,43 @@
         ></button>
     </div>
 
+    <div>
+      <div class="h-[83.2vh] overflow-auto grid grid-cols-3 gap-6">
+        {#each albumTitles as i}
+          <div class=" w-[100%]">
+            <img
+              src={albums[i].imageLinks[
+                Math.floor(Math.random() * (albums[i].imageLinks.length - 0))
+              ]}
+              class="rounded-md w-max h-max"
+              alt="" />
+            <div class="flex justify-between w-[100%] pt-2">
+              <p class="w-[50%]">{i.replaceAll("_", " ")}</p>
+
+              <p class="text-[#ffffff80]">
+                {albums[i].albumDate.split("-").reverse().join("-")}
+              </p>
+            </div>
+
+            <div class="flex flex-row gap-5 pt-1">
+              <button
+                on:click={editAlbum(i)}
+                class="hover:text-[#ffffffb2] duration-200"
+                ><u>Edit</u>
+              </button>
+              <button
+                on:click={deleteAlbum(i)}
+                class="hover:text-[#ff9c9c] duration-200"
+                ><u>Delete</u>
+              </button>
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+
+    <!-- !? New Album Modal -->
+
     <dialog
       data-newAlbum
       class="bg-[#0D0D0D] text-white p-5 rounded-lg w-[50%] border-[#151515] border-2">
@@ -439,16 +511,24 @@
         </div>
       </div>
       <div>
-        <div class="flex flex-row items-center gap-5">
-          <input
-            placeholder="Name of new album"
-            class="py-3 pl-5 rounded-lg col-span-1 w-[50%] bg-[#171717]"
-            bind:value={albumName} />
+        <div class="flex flex-row items-start justify-between">
+          <div>
+            <input
+              placeholder="Name of new album"
+              class="py-3 pl-5 rounded-lg col-span-1 bg-[#171717] w-[100%]"
+              bind:value={albumName} />
+
+            <p class="mt-3 text-sm text-gray-500">
+              Make sure the name is concise and is less than 30 words <br />
+              Only plain text, numbers, hyphens and slashes are allowed <br />
+              Do not use special characters such as asterisks, periods, etc
+            </p>
+          </div>
 
           <input
             type="date"
             bind:value={albumDate}
-            class="py-3 px-4 pl-5 rounded-lg w-[50%] bg-[#171717]" />
+            class="py-3 px-4 pl-5 rounded-lg w-[40%] bg-[#171717]" />
         </div>
 
         <div class="flex items-end justify-between">
@@ -477,7 +557,7 @@
       </div>
     </dialog>
 
-    <!-- Edit Album -->
+    <!-- !? Edit Album Modal-->
 
     <dialog
       data-editAlbum
@@ -571,40 +651,60 @@
         </form>
       </div>
     </dialog>
-    <div>
-      <div class="h-[83.2vh] overflow-auto">
-        <div class="py-5 masonry-main">
-          {#each albumTitles as i}
-            <div class="relative masonry-item">
-              <img
-                src={albums[i].imageLinks[
-                  Math.floor(Math.random() * (albums[i].imageLinks.length - 0))
-                ]}
-                class="rounded-md w-max h-max"
-                alt="" />
-              <div class="flex justify-between w-[100%] pt-2">
-                <p class="w-[50%]">{i.replaceAll("_", " ")}</p>
 
-                <p class="text-[#ffffff80]">{albums[i].albumDate}</p>
-              </div>
+    <!-- !? Confirm Deletion -->
+    <dialog
+      data-confirmDeleteModal
+      class="bg-[#0D0D0D] text-white p-5 rounded-lg w-[40%] border-[#151515] border-2">
+      <div class="flex items-center justify-between align-middle">
+        <span
+          >Permanently Delete <b
+            >{currentGalleryForDeletion.replaceAll("_", " ")}</b>
+          ? <br />
+          <p class="mt-1 text-sm text-gray-500" id="file_input_help">
+            This will also delete all images within this album <br />
+            and the action is irreversible
+          </p></span>
 
-              <div class="flex flex-row gap-5 pt-1">
-                <button
-                  on:click={editAlbum(i)}
-                  class="hover:text-[#ffffffb2] duration-200"
-                  ><u>Edit</u>
-                </button>
-                <button
-                  on:click={deleteAlbum(i)}
-                  class="hover:text-[#ff9c9c] duration-200"
-                  ><u>Delete</u>
-                </button>
-              </div>
-            </div>
-          {/each}
+        <div class="flex items-center justify-between gap-4">
+          <button
+            class="p-3 rounded-lg hover:bg-[#202020] bg-[#171717] hover:text-[#ff9c9c] text-white group animate-all duration-200"
+            on:click={() => {
+              listAll(ref(storage, `gallery/${currentGalleryForDeletion}/`))
+                .then((res) => {
+                  res.items.forEach((itemRef) => {
+                    deleteObject(itemRef);
+                  });
+                })
+                .catch((error) => {});
+              remove(
+                dbref(
+                  db,
+                  "gallery/" + currentGalleryForDeletion.replaceAll(" ", "_")
+                )
+              );
+              document.querySelector("[data-confirmDeleteModal]").close();
+              location.reload();
+            }}>yes</button>
+          <button
+            class="flex gap-2 items-center p-3 rounded-lg hover:bg-[#202020] bg-[#171717] text-white group animate-all duration-200 group"
+            on:click={() => {
+              document.querySelector("[data-confirmDeleteModal]").close();
+              location.reload();
+            }}
+            >cancel
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              class="duration-200 fill-white animate-all"
+              viewBox="0 0 256 256"
+              ><path
+                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
+          </button>
         </div>
       </div>
-    </div>
+    </dialog>
   </main>
 {/if}
 
@@ -627,24 +727,6 @@
   dialog::backdrop {
     background-color: rgba(0, 0, 0, 0.459);
     backdrop-filter: blur(5px);
-  }
-
-  .checkBoxContainer input {
-    display: none;
-    cursor: pointer;
-  }
-
-  .checkBoxContainer .checkBoxIndicator {
-    transform: scale(0.8);
-    display: block;
-    float: left;
-    margin-right: 5px;
-    cursor: pointer;
-  }
-  .checkBoxContainer input:checked ~ .checkBoxIndicator {
-    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg4IiBoZWlnaHQ9IjM4OCIgdmlld0JveD0iMCAwIDM4OCAzODgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0zNDQgMTE0LjMwNEwzMDYuNzQyIDc3TDE0Ny41NDggMjM2LjMzMUw4MS4yNTgxIDE3MC4wMTlMNDQgMjA3LjMyM0wxNDcuNTQ4IDMxMUwzNDQgMTE0LjMwNFoiIGZpbGw9IiNCMEIwQjAiLz4KPC9zdmc+Cg==)
-      center/cover no-repeat;
-    color: #121212;
   }
 
   * {

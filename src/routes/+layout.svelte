@@ -24,7 +24,7 @@
         setTimeout(() => {
           document.querySelector("[data-newAnnouncement]").showModal();
           showTitleAnnouncement = "block";
-        }, 400);
+        }, 800);
       },
     },
     {
@@ -38,7 +38,7 @@
 
         setTimeout(() => {
           document.querySelector("[data-newAlbum]").showModal();
-        }, 400);
+        }, 800);
       },
     },
     {

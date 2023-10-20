@@ -45,6 +45,7 @@
   let thumbnailLocation;
   let announcements;
   let announcementsTitles = [];
+  let announcementValue = [];
   let pinnedAnnouncements = [];
   let pinned = false;
   let normalAnnouncements = [];
@@ -56,6 +57,8 @@
   let date = null;
   let titleAnnouncement = "";
   let uid;
+  let thumbnailDownloadURL;
+  let currentAnnouncementForDeletion = "";
 
   // Getting data on page load
   onMount(() => {
@@ -88,18 +91,58 @@
       if (snapshot.exists()) {
         announcements = snapshot.val();
 
+        console.warn(announcements);
+
         announcementsTitles = Object.keys(announcements);
 
+        announcementValue = Object.values(announcements);
+
+        let datesContainer = [];
+
+        for (let i = 0; i < announcementValue.length; i++) {
+          let date = announcementValue[i].date;
+
+          let dateParts = date.split("-");
+          let year = parseInt(dateParts[0]);
+          let month = parseInt(dateParts[1]) - 1;
+          let day = parseInt(dateParts[2]);
+
+          let dateObject = new Date(year, month, day);
+          let dateNumber = dateObject.getTime();
+          console.log(dateNumber);
+
+          datesContainer.push([dateNumber, i]);
+        }
+
+        datesContainer.sort();
+
+        console.log(datesContainer);
+
+        let sortedAnnouncements = [];
+
+        for (let j = 0; j < datesContainer.length; j++) {
+          console.log(datesContainer[j][0]);
+          // Object.values(announcements)[datesContainer[j][1]].index = j;
+
+          sortedAnnouncements.push(
+            Object.values(announcements)[datesContainer[j][1]]
+          );
+        }
+
+        console.log(sortedAnnouncements);
+
+        sortedAnnouncements.reverse();
+
         for (let i = 0; i < announcementsTitles.length; i++) {
-          if (announcements[announcementsTitles[i]].pinned == true) {
+          if (sortedAnnouncements[i].pinned == true) {
             pinnedAnnouncements = [
               ...pinnedAnnouncements,
-              announcements[announcementsTitles[i]],
+              sortedAnnouncements[i],
             ];
           } else {
             normalAnnouncements = [
               ...normalAnnouncements,
-              announcements[announcementsTitles[i]],
+              sortedAnnouncements[i],
             ];
           }
         }
@@ -477,7 +520,7 @@
         editAnnouncementTitle = currentAnnouncement.title;
         editPinned = currentAnnouncement.pinned;
         editDate = currentAnnouncement.date;
-        editThumbnailLocation = currentAnnouncement.thumbnail;
+        thumbnailDownloadURL = currentAnnouncement.thumbnail;
         console.log(currentAnnouncement.data);
       }
     );
@@ -494,89 +537,117 @@
       return;
     }
 
-    if (!editThumbnailLocation) return;
+    console.error(editThumbnailLocation);
 
-    const imageFile = editThumbnailLocation[0];
-    console.log("originalFile instanceof Blob", imageFile instanceof Blob);
-    console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
+    if (editThumbnailLocation != undefined) {
+      const imageFile = editThumbnailLocation[0];
+      console.log("originalFile instanceof Blob", imageFile instanceof Blob);
+      console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
 
-    const options = {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-    try {
-      const compressedFile = await imageCompression(imageFile, options);
-      console.log(
-        "compressedFile instanceof Blob",
-        compressedFile instanceof Blob
-      );
-      console.log(
-        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
-      );
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+      try {
+        const compressedFile = await imageCompression(imageFile, options);
+        console.log(
+          "compressedFile instanceof Blob",
+          compressedFile instanceof Blob
+        );
+        console.log(
+          `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
+        );
 
-      let storeRef = storageRef(
-        storage,
-        `announcements/${titleAnnouncement.replaceAll(" ", "_")}/${
-          editThumbnailLocation[0].name
-        }`
-      );
-      const uploadTask = uploadBytesResumable(storeRef, compressedFile);
+        let storeRef = storageRef(
+          storage,
+          `announcements/${titleAnnouncement.replaceAll(" ", "_")}/${
+            editThumbnailLocation[0].name
+          }`
+        );
+        const uploadTask = uploadBytesResumable(storeRef, compressedFile);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {},
-        (error) => {
-          reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref)
-            .then((downloadURL) => {
-              // Create a promise to resolve with the download URL when the upload is complete
-              // Code to change the spaces to underscores (_) to prevent errors while posting to the database
-              set(
-                ref(
-                  db,
-                  "announcements/" + editAnnouncementTitle.replaceAll(" ", "_")
-                ),
-                {
-                  title: editAnnouncementTitle,
-                  data: editorData,
-                  pinned: editPinned,
-                  thumbnail: downloadURL,
-                  date: editDate,
-                }
-              )
-                .then(() => {
-                  notyf.success("Successfully edited");
-                  document.querySelector("[data-editAnnouncement]").close();
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {},
+          (error) => {
+            reject(error);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref)
+              .then((downloadURL) => {
+                // Create a promise to resolve with the download URL when the upload is complete
+                // Code to change the spaces to underscores (_) to prevent errors while posting to the database
+                set(
+                  ref(
+                    db,
+                    "announcements/" +
+                      editAnnouncementTitle.replaceAll(" ", "_")
+                  ),
+                  {
+                    title: editAnnouncementTitle,
+                    data: editorData,
+                    pinned: editPinned,
+                    thumbnail: downloadURL,
+                    date: editDate,
+                  }
+                )
+                  .then(() => {
+                    notyf.success("Successfully edited");
+                    document.querySelector("[data-editAnnouncement]").close();
 
-                  editor2.clear();
+                    editor2.clear();
 
-                  setTimeout(getData, 100);
-                })
-                .catch((error) => {
-                  notyf.error(
-                    `There was an error editing the announcement" + ${error}`
-                  );
-                });
-            })
-            .catch((error) => {
-              reject(error);
-              uploadError = error;
-            });
+                    setTimeout(getData, 100);
+                  })
+                  .catch((error) => {
+                    notyf.error(
+                      `There was an error editing the announcement" + ${error}`
+                    );
+                  });
+              })
+              .catch((error) => {
+                reject(error);
+                uploadError = error;
+              });
+          }
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      set(
+        ref(db, "announcements/" + editAnnouncementTitle.replaceAll(" ", "_")),
+        {
+          title: editAnnouncementTitle,
+          data: editorData,
+          pinned: editPinned,
+          thumbnail: thumbnailDownloadURL,
+          date: editDate,
         }
-      );
-    } catch (error) {
-      console.log(error);
+      )
+        .then(() => {
+          notyf.success("Successfully edited");
+          document.querySelector("[data-editAnnouncement]").close();
+
+          editor2.clear();
+
+          setTimeout(getData, 100);
+        })
+        .catch((error) => {
+          notyf.error(
+            `There was an error editing the announcement" + ${error}`
+          );
+        });
     }
 
     // Fetching new announcements after successfully editing the announcements
   }
 
   function deleteAnnouncement(title) {
-    remove(ref(db, "announcements/" + title.replaceAll(" ", "_")));
-    setTimeout(getData, 100);
+    currentAnnouncementForDeletion = title;
+
+    document.querySelector("[data-confirmDeleteModal]").showModal();
   }
 </script>
 
@@ -621,7 +692,9 @@
             <div class="flex justify-between w-[100%] pt-2">
               <p>{pinnedAnnouncements[i].title}</p>
 
-              <p class="text-[#ffffff80]">{pinnedAnnouncements[i].date}</p>
+              <p class="text-[#ffffff80]">
+                {pinnedAnnouncements[i].date.split("-").reverse().join("-")}
+              </p>
             </div>
 
             <div class="flex flex-row gap-5 pt-1">
@@ -638,7 +711,7 @@
       </div>
 
       <!-- ? Normal announcements  -->
-      <p class="text-[30px] text-[#ffffffbb]"><b>Normal</b></p>
+      <p class="text-[30px] text-[#ffffffbb] mt-10"><b>Normal</b></p>
       <div
         class="all-announcements py-5 grid grid-cols-3 gap-6 pr-3 max-[1000px]:grid-cols-1">
         {#each normalAnnouncementsTitles as i}
@@ -651,16 +724,18 @@
             <div class="flex justify-between w-[100%] pt-2">
               <p>{normalAnnouncements[i].title}</p>
 
-              <p class="text-[#ffffff80]">{normalAnnouncements[i].date}</p>
+              <p class="text-[#ffffff80]">
+                {normalAnnouncements[i].date.split("-").reverse().join("-")}
+              </p>
             </div>
 
             <div class="flex flex-row gap-5 pt-1">
               <button on:click={editAnnouncement(normalAnnouncements[i].title)}
-                ><u>Edit</u>
+                ><u class="hover:text-[#ffffffb2] duration-200">Edit</u>
               </button>
               <button
                 on:click={deleteAnnouncement(normalAnnouncements[i].title)}
-                ><u>Delete</u>
+                ><u class="hover:text-[#ff9c9c] duration-200">Delete</u>
               </button>
             </div>
           </div>
@@ -670,6 +745,16 @@
     <!-- !? New Announcement Button -->
     <dialog
       data-newAnnouncement
+      on:close={() => {
+        showTitleAnnouncement = "block";
+        showEditorJs = "none";
+        titleAnnouncement = "";
+        thumbnailLocation = undefined;
+        date = null;
+        pinned = false;
+
+        editor.clear();
+      }}
       class="bg-[#0D0D0D] text-white p-5 rounded-lg w-[50%] border-[#151515] border-2">
       <div class="flex items-center justify-between pb-6">
         <button
@@ -679,6 +764,9 @@
             showTitleAnnouncement = "block";
             showEditorJs = "none";
             titleAnnouncement = "";
+            thumbnailLocation = undefined;
+            date = null;
+            pinned = false;
 
             editor.clear();
           }}>
@@ -779,7 +867,9 @@
       <p
         class="mt-3 text-sm text-gray-500"
         style="display: {showTitleAnnouncement};">
-        Make sure the title is concise and is less than 30 words
+        Make sure the title is concise and is less than 30 words <br />
+        Only plain text, numbers, hyphens and slashes are allowed <br />
+        Do not use special characters such as asterisks, periods, etc
       </p>
 
       <div
@@ -792,6 +882,10 @@
     <!-- !? Edit Announcement -->
     <dialog
       data-editAnnouncement
+      on:close={() => {
+        editor2.clear();
+        editThumbnailLocation = undefined;
+      }}
       class="bg-[#0D0D0D] text-white p-5 rounded-lg w-[50%] border-[#151515] border-2">
       <div class="flex items-center justify-between pb-6 align-middle">
         <button
@@ -799,6 +893,7 @@
           on:click={() => {
             document.querySelector("[data-editAnnouncement]").close();
             editor2.clear();
+            editThumbnailLocation = undefined;
           }}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -865,6 +960,56 @@
         <div>Editing - <b>{editAnnouncementTitle}</b></div>
       </div>
     </dialog>
+
+    <!-- !? Confirm Deletion -->
+    <dialog
+      data-confirmDeleteModal
+      class="bg-[#0D0D0D] text-white p-5 rounded-lg w-[40%] border-[#151515] border-2">
+      <div class="flex items-center justify-between align-middle">
+        <span
+          >Permanently Delete <b
+            >{currentAnnouncementForDeletion.replaceAll("_", " ")}</b>
+          ? <br />
+          <p class="mt-1 text-sm text-gray-500" id="file_input_help">
+            This action is irreversible
+          </p></span>
+
+        <div class="flex items-center justify-between gap-4">
+          <button
+            class="p-3 rounded-lg hover:bg-[#202020] bg-[#171717] hover:text-[#ff9c9c] text-white group animate-all duration-200"
+            on:click={() => {
+              remove(
+                ref(
+                  db,
+                  "announcements/" +
+                    currentAnnouncementForDeletion.replaceAll(" ", "_")
+                )
+              ).then(() => {
+                currentAnnouncementForDeletion = undefined;
+              });
+
+              document.querySelector("[data-confirmDeleteModal]").close();
+              location.reload();
+            }}>yes</button>
+          <button
+            class="flex gap-2 items-center p-3 rounded-lg hover:bg-[#202020] bg-[#171717] text-white group animate-all duration-200 group"
+            on:click={() => {
+              document.querySelector("[data-confirmDeleteModal]").close();
+              location.reload();
+            }}
+            >cancel
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              class="duration-200 fill-white animate-all"
+              viewBox="0 0 256 256"
+              ><path
+                d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
+          </button>
+        </div>
+      </div>
+    </dialog>
   </main>
 {/if}
 
@@ -909,53 +1054,5 @@
 
   * {
     color-scheme: dark;
-  }
-
-  .ce-block--selected .ce-block__content,
-  .ce-inline-toolbar,
-  .codex-editor--narrow .ce-toolbox,
-  .ce-conversion-toolbar,
-  .ce-settings,
-  .ce-settings__button,
-  .ce-toolbar__settings-btn,
-  .cdx-button,
-  .ce-popover,
-  .ce-toolbar__plus:hover {
-    background: #007991;
-    color: inherit;
-  }
-
-  .ce-inline-tool,
-  .ce-conversion-toolbar__label,
-  .ce-toolbox__button,
-  .cdx-settings-button,
-  .ce-toolbar__plus {
-    color: inherit;
-  }
-
-  ::selection {
-    background: #439a86;
-  }
-
-  .cdx-settings-button:hover,
-  .ce-settings__button:hover,
-  .ce-toolbox__button--active,
-  .ce-toolbox__button:hover,
-  .cdx-button:hover,
-  .ce-inline-toolbar__dropdown:hover,
-  .ce-inline-tool:hover,
-  .ce-popover__item:hover,
-  .ce-toolbar__settings-btn:hover {
-    background-color: #439a86;
-    color: inherit;
-  }
-
-  .cdx-notify--error {
-    background: #fb5d5d !important;
-  }
-
-  .cdx-notify__cross::after,
-  .cdx-notify__cross::before {
-    background: white;
   }
 </style>
